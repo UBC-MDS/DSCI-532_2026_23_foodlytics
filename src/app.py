@@ -3,7 +3,7 @@ import pandas as pd
 
 # Placeholders
 app_ui = ui.page_fillable(
-    ui.panel_title("FOODLYTICS"),
+    ui.h1("FOODLYTICS", style = "color: darkblue;"),
     ui.layout_sidebar(
         ui.sidebar(
             ui.input_checkbox_group(
