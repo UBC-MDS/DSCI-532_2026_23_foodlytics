@@ -1,6 +1,6 @@
 ---
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: sentence
 ---
 
@@ -53,7 +53,7 @@ This helps decision-makers evaluate whether entering a dense market requires str
 
 ## Section 5: App Sketch & Description
 
-![](images/sketch.png){width="525"}
+![](./img/sketch.png)
 
 The **FOODLYTICS** dashboard includes 8 components: 3 interactive filters (city, cuisine type, and price range), 2 summary statistics cards, and 3 figures.
 All components update dynamically based on user selections to provide an interactive experience.
