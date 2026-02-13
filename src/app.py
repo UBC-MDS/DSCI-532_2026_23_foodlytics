@@ -16,50 +16,54 @@ app_ui = ui.page_fillable(
                 label="Cuisine Type",
                 choices=["Italian", "Chinese", "Mexican"],
                 multiple=True,
-                selected=["Italian" ]      
+                selected=["Italian"]      
             ),
             ui.input_select(
                 id="city",
                 label="Location",
                 choices=["Vancouver", "Toronto", "Calgary", "Montreal"],
                 multiple=True,
-                selected="Vancouver"       
+                selected=["Vancouver"]      
             ),
             ui.input_action_button("reset_filters", "Reset filters"),
-            open="desktop",
+            open="desktop"
         ),
-        ui.main_panel(
-            ui.row(
-                ui.value_box("Total Restaurants", "12"),
-                ui.value_box("Average Rating", "8.5"),
+
+        ui.row(
+            ui.column(6,
+                      ui.value_box("Total Restaurants", "12")),
+            ui.column(6,
+                      ui.value_box("Average Rating", "8.5"))
+        ),
+        ui.row(
+            ui.column(
+                6,
+                ui.card(
+                    ui.card_header("Map Visual Placeholder"),
+                    ui.output_widget("map"),
+                    full_screen=True
+                )
             ),
-            ui.row(
-                ui.column(
-                    6,
-                    ui.card(
-                        ui.card_header("Map Visual Placeholder"),
-                        ui.output_widget("map")
-                        )
-            ),
-                ui.column(
-                        6,
-                        ui.card(
-                            ui.card_header("Bar Chart Placeholder"),
-                            ui.output_widget("bar_chart")
-                            )
-                        )
-                ),
-            ui.row(
-                ui.column(
-                    12,
-                    ui.card(
-                        ui.card_header("Restaurant Table Placeholder"),
-                        ui.output_widget("restaurant_table")
+            ui.column(
+                6,
+                ui.card(
+                    ui.card_header("Bar Chart Placeholder"),
+                    ui.output_widget("bar_chart"),
+                    full_screen=True
+                )
+            )
+        ),
+        ui.row(
+            ui.column(
+                12,
+                ui.card(
+                    ui.card_header("Restaurant Table Placeholder"),
+                    ui.output_widget("restaurant_table"),
+                    full_screen=True
+                )
             )
         )
     )
-)
-    ),
 )
 
 def server(input, output, session):
