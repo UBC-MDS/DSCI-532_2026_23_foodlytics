@@ -1,4 +1,5 @@
-from shiny import App, ui
+from shiny import App, ui, render
+import pandas as pd
 
 # Placeholders
 app_ui = ui.page_fillable(
@@ -67,6 +68,21 @@ app_ui = ui.page_fillable(
 )
 
 def server(input, output, session):
-    pass
+
+    @render.text
+    def map():
+        return "Map displaying selected locations will appear here."
+
+    @render.text
+    def bar_chart():
+        return "Bar chart showing the distribution of food types based on the applied filters will appear here."
+
+    @render.data_frame
+    def restaurant_table():
+        return pd.DataFrame({
+            "Restaurant Name": ["Subway", "McDonalds", "Cactus Club Cafe"],
+            "Stars": [3.0, 4.5, 5.0],
+            "# of Reviews": [4056, 10050, 8000]
+            })
 
 app = App(app_ui, server)
