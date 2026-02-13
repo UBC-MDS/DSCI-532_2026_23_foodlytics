@@ -23,6 +23,16 @@ A **business investor** is seeking information regarding the price ranges in the
 A **prospective restaurant owner** is evaluating the distribution of the different types of cuisine, so they can provide a better service in a lacking market.
 
 ## Section 4: Exploratory Data Analysis
+To address User Story 1 (Restaurant Density), we analyzed the number of restaurants across major Canadian cities.
+
+**Analysis**
+
+The bar chart in notebooks/eda_analysis.ipynb shows clear differences in restaurant concentration between cities. Vancouver and Toronto display the highest number of restaurants, while cities such as Winnipeg and Ottawa have comparatively lower concentrations.
+
+**Reflection**
+
+This finding supports the need for a city-level comparison filter in the dashboard. By allowing entrepreneurs to visualize and compare restaurant density across cities, they can identify highly saturated markets versus less competitive ones. This helps decision-makers evaluate whether entering a dense market requires strong differentiation or whether a lower-density city may offer a better opportunity for new restaurant entry.
+
 
 
 ## Section 5: App Sketch & Description
