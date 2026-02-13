@@ -40,7 +40,7 @@ app_ui = ui.page_fillable(
                 6,
                 ui.card(
                     ui.card_header("Map Visual Placeholder"),
-                    ui.output_widget("map"),
+                    ui.output_text("map"),
                     full_screen=True
                 )
             ),
@@ -48,7 +48,7 @@ app_ui = ui.page_fillable(
                 6,
                 ui.card(
                     ui.card_header("Bar Chart Placeholder"),
-                    ui.output_widget("bar_chart"),
+                    ui.output_text("bar_chart"),
                     full_screen=True
                 )
             )
@@ -58,7 +58,7 @@ app_ui = ui.page_fillable(
                 12,
                 ui.card(
                     ui.card_header("Restaurant Table Placeholder"),
-                    ui.output_widget("restaurant_table"),
+                    ui.output_data_frame("restaurant_table"),
                     full_screen=True
                 )
             )
