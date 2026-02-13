@@ -53,17 +53,19 @@ This helps decision-makers evaluate whether entering a dense market requires str
 
 ## Section 5: App Sketch & Description
 
-The FOODLYTICS dashboard includes 8 components: 3 interactive filters (city, cuisine type, and price range), 2 summary statistics cards, and 3 figures.
+![](images/sketch.png){width="525"}
+
+The **FOODLYTICS** dashboard includes 8 components: 3 interactive filters (city, cuisine type, and price range), 2 summary statistics cards, and 3 figures.
 All components update dynamically based on user selections to provide an interactive experience.
 The summary statistics display the total number of restaurants and the average rating for the filtered results.
 
 The visualizations include:
 
--   Map: Displays selected cities with hover tooltips showing key metrics such as number of cuisines and average rating.
+-   **Map:** Displays selected cities with hover tooltips showing key metrics such as number of cuisines and average rating.
 
--   Bar Chart: Shows the distribution of food types based on the applied filters.
-    For example, if a user selects Vancouver, Italian cuisine, and a price range of “\$\$,” the chart will display relevant food types within those criteria, such as pizza, pasta, and street food.
+-   **Bar Chart:** Shows the distribution of food types based on the applied filters.
+    For example, if a user selects a price range of “\$\$,” Italian cuisine, and Vancouver, the chart will display relevant food types within those criteria, such as pizza, pasta, and street food.
 
--   Table: Lists restaurants matching the selected criteria, including review count and star rating.
+-   **Table:** Lists restaurants matching the selected criteria, including review count and star rating.
 
 These components provide both high-level insights and detailed, restaurant-level information to support data-driven decision-making. 
