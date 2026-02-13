@@ -1,0 +1,1 @@
+This dashboard visualizes restaurant quality and type across Canada’s main cities, including cuisine categories and price ranges. It is aimed at businesses and entrepreneurs planning to open a new restaurant, helping them understand the local restaurant landscape so they can decide where to open and what type of restaurant to offer.
