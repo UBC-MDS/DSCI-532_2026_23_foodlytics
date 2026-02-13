@@ -33,7 +33,5 @@ The bar chart in notebooks/eda_analysis.ipynb shows clear differences in restaur
 
 This finding supports the need for a city-level comparison filter in the dashboard. By allowing entrepreneurs to visualize and compare restaurant density across cities, they can identify highly saturated markets versus less competitive ones. This helps decision-makers evaluate whether entering a dense market requires strong differentiation or whether a lower-density city may offer a better opportunity for new restaurant entry.
 
-
-
 ## Section 5: App Sketch & Description
 
