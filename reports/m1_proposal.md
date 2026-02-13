@@ -15,12 +15,15 @@ To make a better decision, he uses the app “Foodlytics” to explore the data.
 After reviewing the results, he realizes that downtown has many mid-range Mediterranean restaurants. However, a nearby neighborhood has fewer competitors in the same category. Based on this information, Daniel adjusts his business plan and considers opening his restaurant in the less saturated area to reduce risk and increase his chances of success.
 
 ### User Stories
-
-- As an entrepreneur in the food industry, my team is evaluating how to compare restaurant density across the neighborhoods of the main cities of Canada, in order to avoid saturated areas.
-- A business investor is seeking information regarding the price ranges in the city of Vancouver to determine a good pricing strategy.
-- A prospective restaurant owner is evaluating the distribution of the different types of cuisine, so they can provide a better service in a lacking market.
+- **User Story 1:** 
+As an **entrepreneur in the food industry**, I am evaluating how to compare and visualize restaurant density across the neighborhoods of the main cities of Canada, in order to avoid saturated areas.
+- **User Story 2:**
+A **business investor** is seeking information regarding the price ranges in the city of Vancouver to determine a good pricing strategy.
+- **User story 3:**
+A **prospective restaurant owner** is evaluating the distribution of the different types of cuisine, so they can provide a better service in a lacking market.
 
 ## Section 4: Exploratory Data Analysis
+
 
 ## Section 5: App Sketch & Description
 
