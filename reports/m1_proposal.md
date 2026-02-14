@@ -6,7 +6,14 @@ editor_options:
 
 ## Section 1: Motivation and Purpose
 
+**Our role:** Data Scientist / Business Analytics Consultant
+**Target audience:** Restaurant owners/entrepreneurs
+
+The food industry is a growing business in Canada. Hence, opening a restaurant is a highly competitive business to thrive in. Without a proper understanding of the business trends and careful planning, entrepreneurs can fail their business early and incur a huge cost. A major challenge for restaurant owners is identifying which cuisines are saturated, areas that have unmet demand, and how competitors are generally performing before launching or expanding their restaurant. We, as data scientists, can address these challenges by offering a data visualization app that can give insights about restaurant market trends in major cities across Canada. Our dashboard app will provide visual insights that will enable restaurant owners to make data-driven decisions, ultimately to reduce business risk and improve the likelihood of success.
+
+
 ## Section 2: Description of the Data
+
 
 ## Section 3: Research Questions & Usage Scenarios
 
