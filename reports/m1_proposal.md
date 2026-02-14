@@ -14,6 +14,13 @@ The food industry is a growing business in Canada. Hence, opening a restaurant i
 
 ## Section 2: Description of the Data
 
+The dataset consists of 3,289 observations with 9 variables collected from DoorDash listings. The variables describe the characteristics of restaurants:
+Restaurant details: ‘restaurant’ (name), ‘url’ (menu page link)
+Location variables: ‘distance’, ‘city’
+Customer reviews: `star`, `num_reviews`
+Pricing indicator: `price_range`
+Food categories: `category_1` (food cuisine), `category_2`(types of food, i.e. wraps, chicken, sandwiches, etc.)
+These characteristics help us to get the details of the restaurants to see the market trends: cuisines/food types concentration, location saturation, customer ratings, and pricing levels. All are important factors in making a more informed decision in the restaurant business.
 
 ## Section 3: Research Questions & Usage Scenarios
 
