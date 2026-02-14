@@ -6,7 +6,21 @@ editor_options:
 
 ## Section 1: Motivation and Purpose
 
+**Our role:** Data Scientist / Business Analytics Consultant
+**Target audience:** Restaurant owners/entrepreneurs
+
+The food industry is a growing business in Canada. Hence, opening a restaurant is a highly competitive business to thrive in. Without a proper understanding of the business trends and careful planning, entrepreneurs can fail their business early and incur a huge cost. A major challenge for restaurant owners is identifying which cuisines are saturated, areas that have unmet demand, and how competitors are generally performing before launching or expanding their restaurant. We, as data scientists, can address these challenges by offering a data visualization app that can give insights about restaurant market trends in major cities across Canada. Our dashboard app will provide visual insights that will enable restaurant owners to make data-driven decisions, ultimately to reduce business risk and improve the likelihood of success.
+
+
 ## Section 2: Description of the Data
+
+The dataset consists of 3,289 observations with 9 variables collected from DoorDash listings. The variables describe the characteristics of restaurants:
+Restaurant details: ‘restaurant’ (name), ‘url’ (menu page link)
+Location variables: ‘distance’, ‘city’
+Customer reviews: `star`, `num_reviews`
+Pricing indicator: `price_range`
+Food categories: `category_1` (food cuisine), `category_2`(types of food, i.e. wraps, chicken, sandwiches, etc.)
+These characteristics help us to get the details of the restaurants to see the market trends: cuisines/food types concentration, location saturation, customer ratings, and pricing levels. All are important factors in making a more informed decision in the restaurant business.
 
 ## Section 3: Research Questions & Usage Scenarios
 
