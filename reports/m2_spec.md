@@ -53,7 +53,7 @@ There are two `@reactive.calc` used in the Foodlytics app:
 
 ### 1. `filtered_df`
 
-- **Depends on:** `input_city`, `input_cuisine`, `input_price_range`
+- **Depends on:** `input_city`, `input_cuisine`, `input_price_range`, `input_food_type`
 - **Transformation:** Filters rows based on the selected city, price range and cuisine type.
 - **Consumed by:** `summary_stats`, `plot_bar_cuisine`, `plot_map`, `tbl_restaurants`
 
