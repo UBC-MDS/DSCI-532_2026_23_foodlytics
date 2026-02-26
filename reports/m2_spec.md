@@ -16,7 +16,7 @@ The following table describes every input, reactive calc, and output the Foodlyt
 |----|------|-------------------------|------------|------------|
 | input_city | Input | `ui.input_select()` | — | #1, #2 #3|
 | input_cuisine | Input | `ui.input_select()` | — | #1 #3|
-| input_price_range | Input | `ui.input_select()` | — | #2|
+| input_price_range | Input | `ui.input_checkbox_group()` | — | #2|
 | filtered_df | Reactive calc | `@reactive.calc` | input_city, input_cuisine, input_price_range | #1, #2, #3 |
 | summary_stats | Reactive calc | `@reactive.calc` | filtered_df | #1, #2 |
 | card_total_restaurants | Output | `render.ui()` | summary_stats | #1|
