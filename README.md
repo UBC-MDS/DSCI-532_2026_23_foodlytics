@@ -33,6 +33,10 @@ This dashboard visualizes restaurant quality and type across Canada’s main cit
    ```
    Open the URL shown in the terminal (e.g. http://127.0.0.1:8000) in your browser.
 
+## Shiny Website URLs
+- Stable (`main` branch): https://cynthiaagata-dsci-532-2026-23-foodlytics.share.connect.posit.cloud
+- Preview (`dev` branch): https://cynthiaagata-dsci-532-2026-23-foodlytics-dev.share.connect.posit.cloud
+
 ## Contributors
 
 * **Valeria Siciliano** ([@Valeria-mds](https://github.com/Valeria-mds))
