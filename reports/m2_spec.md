@@ -27,4 +27,19 @@ The following table describes every input, reactive calc, and output the Foodlyt
 
 ## 2.3 Reactivity Diagram
 
+Below is the planned reactive graph for the Foodlytics app, displayed as a Mermaid flowchart.
+
+```mermaid
+flowchart TD
+  A[/input_city/] --> D{{filtered_df}}
+  B[/input_cuisine/] --> D
+  C[/input_price_range/] --> D
+  D --> E{{summary_stats}}
+  E --> F([card_total_restaurants])
+  E --> G([card_avg_rating])
+  D --> H([plot_map])
+  D --> I([plot_bar_cuisine])
+  D --> J([tbl_restaurants])
+```
+
 ## 2.4 Calculation Details
