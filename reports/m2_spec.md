@@ -17,7 +17,8 @@ The following table describes every input, reactive calc, and output the Foodlyt
 | input_city | Input | `ui.input_select()` | — | #1, #2 #3|
 | input_cuisine | Input | `ui.input_select()` | — | #1 #3|
 | input_price_range | Input | `ui.input_checkbox_group()` | — | #2|
-| filtered_df | Reactive calc | `@reactive.calc` | input_city, input_cuisine, input_price_range | #1, #2, #3 |
+| input_food_type | Input | `ui.input_select()` | — | #3|
+| filtered_df | Reactive calc | `@reactive.calc` | input_city, input_cuisine, input_price_range, input_food_type | #1, #2, #3 |
 | summary_stats | Reactive calc | `@reactive.calc` | filtered_df | #1, #2 |
 | card_total_restaurants | Output | `render.ui()` | summary_stats | #1|
 | card_avg_rating | Output | `render.ui()` | summary_stats | #2|
@@ -31,15 +32,16 @@ Below is the planned reactive graph for the Foodlytics app, displayed as a Merma
 
 ```mermaid
 flowchart TD
-  A[/input_city/] --> D{{filtered_df}}
-  B[/input_cuisine/] --> D
-  C[/input_price_range/] --> D
-  D --> E{{summary_stats}}
-  E --> F([card_total_restaurants])
-  E --> G([card_avg_rating])
-  D --> H([plot_map])
-  D --> I([plot_bar_cuisine])
-  D --> J([tbl_restaurants])
+  A[/input_city/] --> E{{filtered_df}}
+  B[/input_cuisine/] --> E
+  C[/input_price_range/] --> E
+  D[/input_food_type/] --> E
+  E --> F{{summary_stats}}
+  F --> G([card_total_restaurants])
+  F --> H([card_avg_rating])
+  E --> I([plot_map])
+  E --> J([plot_bar_cuisine])
+  E --> K([tbl_restaurants])
 ```
 
 ## 2.4 Calculation Details
