@@ -15,7 +15,6 @@ dependencies:
   - plotly>=5.18
   - altair>=5.0
   - vega_datasets
-  - matplotlib
 
   # Shiny stack (all conda-forge)
   - shiny>=0.7
@@ -29,3 +28,4 @@ dependencies:
   # pip-only packages LAST
   - pip:
       - kaggle>=1.6
+      - faicons
