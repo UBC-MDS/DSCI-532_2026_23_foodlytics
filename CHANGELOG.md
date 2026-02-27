@@ -15,6 +15,7 @@
 - Refined input controls based on M2 spec feedback
 - Fixed rendering issues with maps to confine it to Canadian cities
 - Corrected data filtering logic (e.g. selecting the city incorrectly called “Branpton”, instead of “Bramption”)
+- Updated location selection bar to handle empty selections with a default output state, or cuisine type, or food type
 
 
 ### Fixed
@@ -23,7 +24,7 @@ N/A
 
 ### Known Issues
 
-- Updated location selection bar to handle empty selections with a default output state, or cuisine type, or food type
+
 
 
 ### Reflection
