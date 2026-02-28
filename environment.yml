@@ -1,6 +1,5 @@
 name: dsci532
 
-
 channels:
   - conda-forge
 
@@ -8,21 +7,25 @@ dependencies:
   - python>=3.11,<3.12
   - pip
 
-  # Data Handling
+  # Data
   - pandas>=2.0
   - numpy>=1.24
 
   # Visualization
   - plotly>=5.18
   - altair>=5.0
+  - vega_datasets
 
-  # Dashboard
+  # Shiny stack (all conda-forge)
   - shiny>=0.7
-  - shinywidgets>=0.2
+  - shinywidgets>=0.7
+  - anywidget
 
-  # Development
+  # Jupyter
   - jupyterlab>=4.0
   - ipykernel>=6.25
 
+  # pip-only packages LAST
   - pip:
       - kaggle>=1.6
+      - faicons
