@@ -26,10 +26,11 @@ CITIES_COORDS = get_cities_coords()
 # Canada-only base
 countries_topo = alt.topo_feature(vega_data.world_110m.url, "countries")
 
-# Filter choices from data (match spec: city, cuisine, price_range)
+# Filter choices from data
 CITIES = sorted(df["city"].dropna().unique().tolist())
 CUISINES = sorted(df["category_1"].dropna().unique().tolist())
 PRICE_RANGES = sorted(df["price_range"].dropna().unique().tolist())
+CATEGORY_2 = sorted(df["category_2"].dropna().unique().tolist())
 
 # Footer content
 REPO_URL = "https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics"
@@ -106,7 +107,7 @@ app_ui = ui.page_fillable(
             ),
             ui.input_select(
                 id="cuisine",
-                label="Cuisine Type",
+                label="Cuisine / restaurant type",
                 choices=CUISINES,
                 multiple=True,
                 selected=CUISINES,
@@ -117,6 +118,13 @@ app_ui = ui.page_fillable(
                 choices=CITIES,
                 multiple=True,
                 selected=CITIES,
+            ),
+            ui.input_select(
+                id="category_2",
+                label="Dish / food type",
+                choices=CATEGORY_2,
+                multiple=True,
+                selected=CATEGORY_2,
             ),
             ui.input_action_button("reset_filters", "Reset filters"),
             open="desktop",
@@ -182,12 +190,15 @@ def server(input, output, session):
         cities = input.city()
         cuisines = input.cuisine()
         price_ranges = input.price_range()
+        categories_2 = input.category_2()
         if cities:
             data = data[data["city"].isin(cities)]
         if cuisines:
             data = data[data["category_1"].isin(cuisines)]
         if price_ranges:
             data = data[data["price_range"].isin(price_ranges)]
+        if categories_2:
+            data = data[data["category_2"].isin(categories_2)]
         return data
 
     @reactive.calc
@@ -201,8 +212,18 @@ def server(input, output, session):
     def kpi_boxes():
         stats = summary_stats()
         n, avg = stats["n_restaurants"], stats["avg_rating"]
-        cmp_n = compare(n, AVG_RESTAURANTS_PER_CITY, higher_is_better=True, vs_label="avg per city")
-        cmp_avg = compare(avg, OVERALL_AVG, higher_is_better=True)
+        # No matches: neutral "no data" state instead of red
+        if n == 0:
+            no_data = dict(
+                icon="circle-minus",
+                theme="secondary",
+                badge="No restaurants match the selected filters.",
+                label="no data",
+            )
+            cmp_n = cmp_avg = no_data
+        else:
+            cmp_n = compare(n, AVG_RESTAURANTS_PER_CITY, higher_is_better=True, vs_label="avg per city")
+            cmp_avg = compare(avg, OVERALL_AVG, higher_is_better=True)
         return ui.row(
             ui.column(
                 6,
@@ -218,7 +239,7 @@ def server(input, output, session):
                 6,
                 ui.value_box(
                     "Average Rating",
-                    f"{avg:.1f}",
+                    "—" if n == 0 else f"{avg:.1f}",
                     kpi_caption(cmp_avg),
                     showcase=kpi_showcase(cmp_avg),
                     theme=cmp_avg["theme"],
@@ -325,6 +346,7 @@ def server(input, output, session):
         ui.update_checkbox_group("price_range", selected=PRICE_RANGES)
         ui.update_select("cuisine", selected=CUISINES)
         ui.update_select("city", selected=CITIES)
+        ui.update_select("category_2", selected=CATEGORY_2)
 
 
 app = App(app_ui, server)
