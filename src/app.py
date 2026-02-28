@@ -336,7 +336,7 @@ def server(input, output, session):
     @render.data_frame
     def tbl_restaurants():
         data = filtered_df()
-        out = data[["restaurant", "star", "num_reviews", "city", "price_range", "category_1"]].copy()
+        out = data[["restaurant", "star", "num_reviews", "city", "price_range", "category_1", "category_2"]].copy()
         out = out.rename(columns={"restaurant": "Restaurant", "star": "Stars", "num_reviews": "# of Reviews"})
         return out
 
