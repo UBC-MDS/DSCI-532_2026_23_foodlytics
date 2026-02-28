@@ -13,11 +13,15 @@ _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
 # Load data
 def get_data():
-    return pd.read_csv(_DATA_DIR / "cleaned_full_data.csv")
+    df = pd.read_csv(_DATA_DIR / "cleaned_full_data.csv")
+    df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
+    return df
 
 
 def get_cities_coords():
-    return pd.read_csv(_DATA_DIR / "cities_coordinates.csv")
+    coords = pd.read_csv(_DATA_DIR / "cities_coordinates.csv")
+    coords["City"] = coords["City"].str.replace("Branpton", "Brampton", regex=False)
+    return coords
 
 
 df = get_data()
