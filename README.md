@@ -37,6 +37,33 @@ This dashboard visualizes restaurant quality and type across Canada’s main cit
 - Stable (`main` branch): https://cynthiaagata-dsci-532-2026-23-foodlytics.share.connect.posit.cloud
 - Preview (`dev` branch): https://cynthiaagata-dsci-532-2026-23-foodlytics-dev.share.connect.posit.cloud
 
+
+## Demo Animation
+
+**Users**:
+
+### Motivation
+Opening a restaurant involves high financial risk and strategic planning.
+Business owners need reliable data to understand which cuisine types are more preferred, which neighborhoods attract more customers, and where market opportunities exist.
+
+Foodlytics helps entrepreneurs and investors explore restaurant data to make informed, data-driven decisions before choosing a location or cuisine focus.
+
+### What This Dashboard Solves
+Foodlytics allows users to:
+- Explore restaurant ratings and review patterns
+- Compare locations and price ranges
+- Identify trends in customer feedback
+- Filter restaurants based on specific preferences
+
+### Live Dashboard
+You can access the deployed dashboard here:
+https://cynthiaagata-dsci-532-2026-23-foodlytics.share.connect.posit.cloud/
+
+### Demo
+Below is a short demo of the dashboard in action:
+![App Demo](img/demo.mp4)
+
+
 ## Contributors
 
 * **Valeria Siciliano** ([@Valeria-mds](https://github.com/Valeria-mds))
@@ -44,6 +71,23 @@ This dashboard visualizes restaurant quality and type across Canada’s main cit
 * **Rabin Duran** ([@rabin0208](https://github.com/rabin0208))
 * **Shanze Khemani** ([@shanzekhem](https://github.com/shanzekhem))
 
+To contribute to the Foodlytics app, please read and follow the guidelines in [CONTRIBUTING.md](./CONTRIBUTING.md):
+### Run the app locally (quick start)
+
+
+1. Clone the repo (or your fork):
+```bash
+git clone git@github.com:UBC-MDS/DSCI-532_2026_23_foodlytics.git
+cd DSCI-532_2026_23_foodlytics
+
+
+2. conda env create -f environment.yml
+conda activate dsci532
+
+3. run:
+   ```bash
+   shiny run src/app.py
+   ```
 
 ## Copyright
 
