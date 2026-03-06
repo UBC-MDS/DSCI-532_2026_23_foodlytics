@@ -4,10 +4,15 @@ import altair as alt
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import os
+import chatlas as clt
+import querychat
+from dotenv import load_dotenv
 from shiny import App, ui, render, reactive
 from shinywidgets import output_widget, render_altair, render_widget
 from vega_datasets import data as vega_data
 from faicons import icon_svg
+
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
 
@@ -17,14 +22,20 @@ def get_data():
     df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
     return df
 
+# QueryChat setup for Dashboard 
+load_dotenv()
+df = get_data()
+chat = querychat.QueryChat(
+    df, 
+    "foodlytics",
+    client=clt.ChatGithub(model="gpt-4.1-mini")
+)
 
 def get_cities_coords():
     coords = pd.read_csv(_DATA_DIR / "cities_coordinates.csv")
     coords["City"] = coords["City"].str.replace("Branpton", "Brampton", regex=False)
     return coords
 
-
-df = get_data()
 CITIES_COORDS = get_cities_coords()
 
 # Canada-only base
@@ -99,90 +110,117 @@ def kpi_caption(cmp):
 
 
 # ── UI ──────────────────────────────────────────────────────────────
-app_ui = ui.page_fillable(
-    ui.h1("FOODLYTICS", style="color: darkblue;"),
-    ui.layout_sidebar(
-        ui.sidebar(
-            ui.input_checkbox_group(
-                id="price_range",
-                label="Price Range",
-                choices=PRICE_RANGES,
-                selected=PRICE_RANGES,
-            ),
-            ui.input_select(
-                id="cuisine",
-                label="Cuisine / restaurant type",
-                choices=CUISINES,
-                multiple=True,
-                selected=CUISINES,
-            ),
-            ui.input_select(
-                id="city",
-                label="Location",
-                choices=CITIES,
-                multiple=True,
-                selected=CITIES,
-            ),
-            ui.input_select(
-                id="category_2",
-                label="Dish / food type",
-                choices=CATEGORY_2,
-                multiple=True,
-                selected=CATEGORY_2,
-            ),
-            ui.input_action_button("reset_filters", "Reset filters"),
-            open="desktop",
-        ),
-        # Row 1: KPI value boxes (from summary_stats)
-        ui.output_ui("kpi_boxes"),
-        # Row 2: Map + Bar chart (from filtered_df)
-        ui.row(
-            ui.column(
-                6,
-                ui.card(
-                    ui.card_header("Map Visual"),
-                    output_widget("map"),
-                    full_screen=True,
+app_ui = ui.page_navbar(
+    ui.nav_panel(
+        "Foodlytics Dashboard",
+        ui.page_fillable(
+            ui.h1("FOODLYTICS", style="color: darkblue;"),
+            ui.layout_sidebar(
+                ui.sidebar(
+                    ui.input_checkbox_group(
+                        id="price_range",
+                        label="Price Range",
+                        choices=PRICE_RANGES,
+                        selected=PRICE_RANGES,
+                    ),
+                    ui.input_select(
+                        id="cuisine",
+                        label="Cuisine / restaurant type",
+                        choices=CUISINES,
+                        multiple=True,
+                        selected=CUISINES,
+                    ),
+                    ui.input_select(
+                        id="city",
+                        label="Location",
+                        choices=CITIES,
+                        multiple=True,
+                        selected=CITIES,
+                    ),
+                    ui.input_select(
+                        id="category_2",
+                        label="Dish / food type",
+                        choices=CATEGORY_2,
+                        multiple=True,
+                        selected=CATEGORY_2,
+                    ),
+                    ui.input_action_button("reset_filters", "Reset filters"),
+                    open="desktop",
+                ),
+
+                # Row 1: KPI value boxes (from summary_stats)
+                ui.output_ui("kpi_boxes"),
+
+                # Row 2: Map + Bar chart (from filtered_df)
+                ui.row(
+                    ui.column(
+                        6,
+                        ui.card(
+                            ui.card_header("Map Visual"),
+                            output_widget("map"),
+                            full_screen=True,
+                        ),
+                    ),
+                    ui.column(
+                        6,
+                        ui.card(
+                            ui.card_header("Restaurant count by cuisine"),
+                            output_widget("plot_bar_cuisine"),
+                            full_screen=True,
+                        ),
+                    ),
+                ),
+
+                # Row 3: Table (from filtered_df)
+                ui.row(
+                    ui.column(
+                        12,
+                        ui.card(
+                            ui.card_header("Restaurants"),
+                            ui.output_data_frame("tbl_restaurants"),
+                            full_screen=True,
+                        ),
+                    ),
+                ),
+
+                # Footer
+                ui.tags.footer(
+                    ui.tags.div(
+                        ui.tags.p(APP_DESCRIPTION, style="margin-bottom:0.5rem;"),
+                        ui.tags.p(
+                            "Authors: " + AUTHORS,
+                            style="margin-bottom:0.25rem;font-size:0.9rem;",
+                        ),
+                        ui.tags.p(
+                            ui.tags.a(
+                                "Repository",
+                                href=REPO_URL,
+                                target="_blank",
+                                rel="noopener",
+                            ),
+                            " · Last updated: " + LAST_UPDATED,
+                            style="margin-bottom:0;font-size:0.9rem;",
+                        ),
+                        style="padding:1rem 0;border-top:1px solid #dee2e6;color:#6c757d;font-size:0.85rem;",
+                    ),
+                    style="margin-top:1.5rem;",
                 ),
             ),
-            ui.column(
-                6,
-                ui.card(
-                    ui.card_header("Restaurant count by cuisine"),
-                    output_widget("plot_bar_cuisine"),
-                    full_screen=True,
-                ),
-            ),
-        ),
-        # Row 3: Table (from filtered_df)
-        ui.row(
-            ui.column(
-                12,
-                ui.card(
-                    ui.card_header("Restaurants"),
-                    ui.output_data_frame("tbl_restaurants"),
-                    full_screen=True,
-                ),
-            ),
-        ),
-        # Footer
-        ui.tags.footer(
-            ui.tags.div(
-                ui.tags.p(APP_DESCRIPTION, style="margin-bottom:0.5rem;"),
-                ui.tags.p(
-                    "Authors: " + AUTHORS,
-                    style="margin-bottom:0.25rem;font-size:0.9rem;",
-                ),
-                ui.tags.p(
-                    ui.tags.a("Repository", href=REPO_URL, target="_blank", rel="noopener"),
-                    " · Last updated: " + LAST_UPDATED,
-                    style="margin-bottom:0;font-size:0.9rem;",
-                ),
-                style="padding:1rem 0;border-top:1px solid #dee2e6;color:#6c757d;font-size:0.85rem;",
-            ),
-            style="margin-top:1.5rem;",
         ),
     ),
+    ui.nav_panel(
+        "AI-Powered Dashboard",
+        ui.page_sidebar(
+            chat.sidebar(),
+            ui.card(
+                ui.card_header(ui.output_text("title")),
+                ui.output_data_frame("data_table"),
+                fill=True,
+            ),
+            fillable=True,
+            title="Foodlytics QueryChat"
+        )
+    )
 )
 
 
@@ -352,5 +390,20 @@ def server(input, output, session):
         ui.update_select("city", selected=CITIES)
         ui.update_select("category_2", selected=CATEGORY_2)
 
+    # AI server
+    qc_vals = chat.server()
+
+    @render.text
+    def title():
+        return qc_vals.title() or "AI Filtered Dataframe"
+
+    @render.data_frame
+    def data_table():
+        return qc_vals.df()
 
 app = App(app_ui, server)
+
+# For local testing
+if __name__ == "__main__":
+    from shiny import run_app
+    run_app(app, host="127.0.0.1", port=8000)
