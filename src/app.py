@@ -266,7 +266,7 @@ def server(input, output, session):
         if data.empty:
             return (
                 base.project(type=proj)
-                .properties(width="container", height=450, title="Restaurant count by city — Canada")
+                .properties(width=420, height=380, title="Restaurant count by city — Canada")
             )
 
         # Aggregate by city: restaurant count and total reviews
@@ -281,7 +281,7 @@ def server(input, output, session):
         if map_df.empty:
             return (
                 base.project(type=proj)
-                .properties(width="container", height=450, title="Restaurant count by city — Canada")
+                .properties(width="container", height=380, title="Restaurant count by city — Canada")
             )
 
         # Data-driven layer: size = restaurants, color = total reviews
@@ -291,7 +291,7 @@ def server(input, output, session):
             .encode(
                 longitude="Longitude:Q",
                 latitude="Latitude:Q",
-                size=alt.Size("count:Q").scale(range=[80, 300]).legend(title="Restaurants"),
+                size=alt.Size("count:Q").scale(range=[80, 300]).legend(None),
                 color=alt.Color("total_reviews:Q")
                 .scale(scheme="blues", type="linear")
                 .legend(title="# of reviews"),
@@ -306,7 +306,7 @@ def server(input, output, session):
         return (
             alt.layer(base, points)
             .project(type=proj)
-            .properties(width="container", height=450, title="Restaurant count by city — Canada")
+            .properties(width=420, height=360, title="Restaurant count by city — Canada")
         )
 
     @render_widget
@@ -334,7 +334,9 @@ def server(input, output, session):
                 color="count",
                 color_continuous_scale="blues",
             )
-            fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20))
+            fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
+                              plot_bgcolor="white",
+                              paper_bgcolor="white")
         return fig
 
     @render.data_frame
