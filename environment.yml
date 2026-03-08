@@ -29,3 +29,6 @@ dependencies:
   - pip:
       - kaggle>=1.6
       - faicons
+      - querychat
+      - chatlas
+      - python-dotenv

@@ -6,3 +6,6 @@ shinywidgets>=0.7
 vega-datasets
 faicons
 anywidget
+querychat
+chatlas
+python-dotenv
