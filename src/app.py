@@ -477,7 +477,9 @@ def server(input, output, session):
             color="count",
             color_continuous_scale="blues",
         )
-        fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20))
+        fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
+                              plot_bgcolor="white",
+                              paper_bgcolor="white")
         return fig
 
     @render.download(filename="querychat_filtered_data.csv")
