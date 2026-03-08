@@ -215,7 +215,19 @@ app_ui = ui.page_navbar(
             ui.card(
                 ui.card_header(ui.output_text("title")),
                 ui.output_data_frame("data_table"),
+                ui.download_button("download_ai_data", "Download filtered data", class_="mt-2"),
                 fill=True,
+            ),
+            ui.output_ui("ai_kpi_boxes"),
+            ui.row(
+                ui.column(
+                    12,
+                    ui.card(
+                        ui.card_header("Restaurant count by cuisine (AI-filtered)"),
+                        output_widget("ai_plot_bar_cuisine"),
+                        full_screen=True,
+                    ),
+                ),
             ),
             fillable=True,
             title="Foodlytics QueryChat"
@@ -402,6 +414,80 @@ def server(input, output, session):
     @render.data_frame
     def data_table():
         return qc_vals.df()
+
+    # AI tab: value boxes and bar chart from querychat filtered dataframe
+    @render.ui
+    def ai_kpi_boxes():
+        data = qc_vals.df()
+        n = len(data) if not data.empty else 0
+        avg = float(data["star"].mean()) if not data.empty and "star" in data.columns else 0.0
+        if n == 0:
+            no_data = dict(
+                icon="circle-minus",
+                theme="secondary",
+                badge="No restaurants in AI filter result.",
+                label="no data",
+            )
+            cmp_n = cmp_avg = no_data
+        else:
+            cmp_n = compare(n, AVG_RESTAURANTS_PER_CITY, higher_is_better=True, vs_label="avg per city")
+            cmp_avg = compare(avg, OVERALL_AVG, higher_is_better=True)
+        return ui.row(
+            ui.column(
+                6,
+                ui.value_box(
+                    "Total Restaurants",
+                    str(n),
+                    kpi_caption(cmp_n),
+                    showcase=kpi_showcase(cmp_n),
+                    theme=cmp_n["theme"],
+                ),
+            ),
+            ui.column(
+                6,
+                ui.value_box(
+                    "Average Rating",
+                    "—" if n == 0 else f"{avg:.1f}",
+                    kpi_caption(cmp_avg),
+                    showcase=kpi_showcase(cmp_avg),
+                    theme=cmp_avg["theme"],
+                ),
+            ),
+        )
+
+    @render_widget
+    def ai_plot_bar_cuisine():
+        data = qc_vals.df()
+        if data.empty or "category_1" not in data.columns:
+            fig = go.Figure()
+            fig.add_annotation(
+                text="No data or no cuisine column. Try a query in the chat.",
+                xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+                font=dict(size=14),
+            )
+            fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
+            return fig
+        agg = data["category_1"].value_counts().reset_index()
+        agg.columns = ["cuisine", "count"]
+        agg = agg.sort_values("count", ascending=True).tail(20)
+        fig = px.bar(
+            agg,
+            x="count",
+            y="cuisine",
+            orientation="h",
+            labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
+            color="count",
+            color_continuous_scale="blues",
+        )
+        fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
+                              plot_bgcolor="white",
+                              paper_bgcolor="white")
+        return fig
+
+    @render.download(filename="querychat_filtered_data.csv")
+    def download_ai_data():
+        data = qc_vals.df()
+        yield data.to_csv(index=False)
 
 app = App(app_ui, server)
 
