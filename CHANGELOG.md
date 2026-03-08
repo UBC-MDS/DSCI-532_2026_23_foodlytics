@@ -86,3 +86,25 @@ Limitations: One limitation is that when no filters are selected, the app displa
 
 Future Improvements: From an analytical perspective, the pricing component could be expanded to include more comparative insights.
 
+
+## [0.3.0] - 2026-03-07
+
+### Added
+- A querychat AI chat interface, AI-powered dashboard tab, A dataframe output component to see the filtered dataframe (`#30`)
+- 2 other output component visualizations that use the querychat filtered dataframe: Barplot, Total Restaurant + Average Rating features, Adds a data download button that will download the querychat filtered dataframe (`#31`)
+
+### Changed
+- README file providing instructions for AI tab feature (`#30`)
+- Dependencies in requirements.txt and environment.yml (`#30`)
+
+### Fixed
+- Adjusted map size to remove scrolling (`#32`)
+- Removed background of the bar plot for better visualization  (`#32`)
+
+### Known Issues
+N/A
+
+### Reflection
+
+With the AI-powered dashboard tab, we can type in the chatbot for commanding AI to do simple tasks like filtering the dataset that we have. Furthermore, we can see the responding dataframe with three other visual features: Barplot of "Restaurant Count by Cuisine", Total Restaurants, and Average rating of the filtered restaurants. In addition, we could download the filtered dataframe into a csv file and the resulting barplot into a png file.
+One current limitation we have is that the AI chatbot can only do simple task like filtering with obvious command. Improvements can be made by using an Anthropic API key to enhance the AI feature for future projects. There is no intentional deviations from DSCI 531 visualization best practices so far. 
