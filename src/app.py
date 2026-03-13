@@ -12,23 +12,35 @@ from shiny import App, ui, render, reactive
 from shinywidgets import output_widget, render_altair, render_widget
 from vega_datasets import data as vega_data
 from faicons import icon_svg
+import ibis
+from ibis import _
 
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
+_PROCESSED_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 
-# Load data
-def get_data():
-    df = pd.read_csv(_DATA_DIR / "cleaned_full_data.csv")
-    df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
-    return df
+PARQUET = _PROCESSED_DIR / "restaurants.parquet"
 
-# QueryChat setup for Dashboard 
+if not PARQUET.exists():
+    raise FileNotFoundError(
+        "Missing parquet file. Create data/processed/restaurants.parquet first."
+    )
+
+con = ibis.duckdb.connect()
+restaurants = con.read_parquet(str(PARQUET))
+
+# one eager read only for startup choices / QueryChat / overall stats
+df = restaurants.execute()
+df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
+
+# QueryChat setup for Dashboard
 load_dotenv()
-df = get_data()
+
+
 chat = querychat.QueryChat(
-    df, 
-    "foodlytics",
-    client=clt.ChatGithub(model="gpt-4.1-mini")
+   df, 
+   "foodlytics",
+   client=clt.ChatGithub(model="gpt-4.1-mini")
 )
 
 def get_cities_coords():
@@ -240,19 +252,22 @@ app_ui = ui.page_navbar(
 def server(input, output, session):
     @reactive.calc
     def filtered_df():
-        data = df.copy()
-        cities = input.city()
-        cuisines = input.cuisine()
-        price_ranges = input.price_range()
-        categories_2 = input.category_2()
-        if cities:
-            data = data[data["city"].isin(cities)]
-        if cuisines:
-            data = data[data["category_1"].isin(cuisines)]
-        if price_ranges:
-            data = data[data["price_range"].isin(price_ranges)]
-        if categories_2:
-            data = data[data["category_2"].isin(categories_2)]
+        expr = restaurants
+
+        if input.city():
+            expr = expr.filter(_.city.isin(input.city()))
+
+        if input.cuisine():
+            expr = expr.filter(_.category_1.isin(input.cuisine()))
+
+        if input.price_range():
+            expr = expr.filter(_.price_range.isin(input.price_range()))
+
+        if input.category_2():
+            expr = expr.filter(_.category_2.isin(input.category_2()))
+
+        data = expr.execute()
+        data["city"] = data["city"].str.replace("Branpton", "Brampton", regex=False)
         return data
 
     @reactive.calc
@@ -330,8 +345,8 @@ def server(input, output, session):
         map_df = by_city.merge(coords, on="city", how="inner")
         if map_df.empty:
             return (
-                base.project(type=proj)
-                .properties(width="container", height=380, title="Restaurant count by city — Canada")
+                base.project(type=proj, fit=base)
+                .properties(width="container", height=450, title="Restaurant count by city — Canada")
             )
 
         # Data-driven layer: size = restaurants, color = total reviews
@@ -397,14 +412,14 @@ def server(input, output, session):
         return out
 
     @reactive.Effect
-    def _():
+    def reset_filters_effect():
         input.reset_filters()
         ui.update_checkbox_group("price_range", selected=PRICE_RANGES)
         ui.update_select("cuisine", selected=CUISINES)
         ui.update_select("city", selected=CITIES)
         ui.update_select("category_2", selected=CATEGORY_2)
 
-    # AI server
+    AI server
     qc_vals = chat.server()
 
     @render.text
@@ -415,7 +430,7 @@ def server(input, output, session):
     def data_table():
         return qc_vals.df()
 
-    # AI tab: value boxes and bar chart from querychat filtered dataframe
+    AI tab: value boxes and bar chart from querychat filtered dataframe
     @render.ui
     def ai_kpi_boxes():
         data = qc_vals.df()
