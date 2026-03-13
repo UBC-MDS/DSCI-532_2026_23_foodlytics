@@ -371,7 +371,7 @@ def server(input, output, session):
         return (
             alt.layer(base, points)
             .project(type=proj)
-            .properties(width=420, height=360, title="Restaurant count by city — Canada")
+            .properties(width="container", height=360, title="Restaurant count by city — Canada")
         )
 
     @render_widget
