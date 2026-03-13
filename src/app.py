@@ -40,7 +40,7 @@ load_dotenv()
 chat = querychat.QueryChat(
    df, 
    "foodlytics",
-   client=clt.ChatGithub(model="gpt-4.1-mini")
+   client=clt.ChatGithub(model="gpt-4o-mini")
 )
 
 def get_cities_coords():
@@ -419,7 +419,7 @@ def server(input, output, session):
         ui.update_select("city", selected=CITIES)
         ui.update_select("category_2", selected=CATEGORY_2)
 
-    AI server
+    # AI server
     qc_vals = chat.server()
 
     @render.text
@@ -430,7 +430,7 @@ def server(input, output, session):
     def data_table():
         return qc_vals.df()
 
-    AI tab: value boxes and bar chart from querychat filtered dataframe
+    # AI tab: value boxes and bar chart from querychat filtered dataframe
     @render.ui
     def ai_kpi_boxes():
         data = qc_vals.df()
