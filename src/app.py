@@ -231,16 +231,16 @@ app_ui = ui.page_navbar(
                 fill=True,
             ),
             ui.output_ui("ai_kpi_boxes"),
-            ui.row(
-                ui.column(
-                    12,
-                    ui.card(
-                        ui.card_header("Restaurant count by cuisine (AI-filtered)"),
-                        output_widget("ai_plot_bar_cuisine"),
-                        full_screen=True,
-                    ),
-                ),
-            ),
+            # ui.row(
+            #     ui.column(
+            #         12,
+            #         ui.card(
+            #             ui.card_header("Restaurant count by cuisine (AI-filtered)"),
+            #             output_widget("ai_plot_bar_cuisine"),
+            #             full_screen=True,
+            #         ),
+            #     ),
+            # ),
             fillable=True,
             title="Foodlytics QueryChat"
         )
@@ -326,6 +326,7 @@ def server(input, output, session):
             alt.Chart(countries_topo)
             .mark_geoshape(fill="#e0e0e0", stroke="white", strokeWidth=0.5)
             .transform_filter(alt.datum.id == 124)
+            .properties(width=500, height=200)
         )
 
         if data.empty:
@@ -470,34 +471,34 @@ def server(input, output, session):
             ),
         )
 
-    @render_widget
-    def ai_plot_bar_cuisine():
-        data = qc_vals.df()
-        if data.empty or "category_1" not in data.columns:
-            fig = go.Figure()
-            fig.add_annotation(
-                text="No data or no cuisine column. Try a query in the chat.",
-                xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
-                font=dict(size=14),
-            )
-            fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
-            return fig
-        agg = data["category_1"].value_counts().reset_index()
-        agg.columns = ["cuisine", "count"]
-        agg = agg.sort_values("count", ascending=True).tail(20)
-        fig = px.bar(
-            agg,
-            x="count",
-            y="cuisine",
-            orientation="h",
-            labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
-            color="count",
-            color_continuous_scale="blues",
-        )
-        fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
-                              plot_bgcolor="white",
-                              paper_bgcolor="white")
-        return fig
+    # @render_widget
+    # def ai_plot_bar_cuisine():
+    #     data = qc_vals.df()
+    #     if data.empty or "category_1" not in data.columns:
+    #         fig = go.Figure()
+    #         fig.add_annotation(
+    #             text="No data or no cuisine column. Try a query in the chat.",
+    #             xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+    #             font=dict(size=14),
+    #         )
+    #         fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
+    #         return fig
+    #     agg = data["category_1"].value_counts().reset_index()
+    #     agg.columns = ["cuisine", "count"]
+    #     agg = agg.sort_values("count", ascending=True).tail(20)
+    #     fig = px.bar(
+    #         agg,
+    #         x="count",
+    #         y="cuisine",
+    #         orientation="h",
+    #         labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
+    #         color="count",
+    #         color_continuous_scale="blues",
+    #     )
+    #     fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
+    #                           plot_bgcolor="white",
+    #                           paper_bgcolor="white")
+    #     return fig
 
     @render.download(filename="querychat_filtered_data.csv")
     def download_ai_data():
