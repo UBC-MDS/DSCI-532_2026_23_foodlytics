@@ -233,7 +233,18 @@ app_ui = ui.page_navbar(
     ui.nav_panel(
         "AI-Powered Dashboard",
         ui.page_sidebar(
-            chat.sidebar(),
+            ui.sidebar(
+                ui.input_select(
+                    "analysis_mode",
+                    "Strategic Focus",
+                    choices={
+                        "Market Saturation": "Market Saturation",
+                        "Pricing Strategy": "Pricing Strategy",
+                        "Cuisine Analysis": "Cuisine Analysis"},
+                    selected="Market Saturation"),
+                ui.hr(),
+                chat.sidebar(),
+                title = "AI Custom Settings"),
             ui.card(
                 ui.card_header(ui.output_text("title")),
                 ui.output_data_frame("data_table"),
