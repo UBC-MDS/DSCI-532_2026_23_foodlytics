@@ -25,6 +25,9 @@ dependencies:
   - jupyterlab>=4.0
   - ipykernel>=6.25
 
+  # Tests
+  - pytest==9.0.2
+
   # pip-only packages LAST
   - pip:
       - kaggle>=1.6
@@ -32,3 +35,5 @@ dependencies:
       - querychat
       - chatlas
       - python-dotenv
+      - playwright
+      - pytest-playwright
