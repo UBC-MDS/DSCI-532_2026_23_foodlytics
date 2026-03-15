@@ -8,7 +8,7 @@ import os
 import chatlas as clt
 import querychat
 from dotenv import load_dotenv
-from shiny import App, ui, render, reactive
+from shiny import App, ui, render, reactive, req
 from shinywidgets import output_widget, render_altair, render_widget
 from vega_datasets import data as vega_data
 from faicons import icon_svg
@@ -36,21 +36,30 @@ df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
 # QueryChat setup for Dashboard
 load_dotenv()
 
+def log_AI_interactions(*args, **kwargs):
+    if len(args) >= 2:
+        tool_request = args[1]
+        print(f"Tool Name: {tool_request.name}", flush=True)
+        print(f"Arguments: {tool_request.args}", flush=True)
+        return tool_request
+    return args[0] 
 
-chat = querychat.QueryChat(
-   df, 
-   system_prompt = """You are a strategic consultant for the Canadian food industry.
+client1 = clt.ChatGithub(
+    model="gpt-4o-mini",
+    system_prompt = """You are a strategic consultant for the Canadian food industry.
 Your goal is to assist entrepreneurs in identifying potential locations with low restaurant
 density and to analyze price ranges to suggest pricing strategies. You can also identify
 different cuisine types and food categories that are underrepresented in certain cities.
-
 The dataset includes star ratings and reviews which should be used to determine where
 the user should invest. For instance, if a city has many restaurants of a certain cuisine,
-it would be "highly saturated". 
+it would be "highly saturated".""")
 
-""",
-   on_tool_request=validate_ai_request,
-   client=clt.ChatGithub(model="gpt-4o-mini")
+client1.on_tool_request(log_AI_interactions)
+
+chat = querychat.QueryChat(
+   df,
+   "foodlytics",
+   client=client1
 )
 
 def get_cities_coords():
@@ -240,30 +249,46 @@ app_ui = ui.page_navbar(
                     choices={
                         "Market Saturation": "Market Saturation",
                         "Pricing Strategy": "Pricing Strategy",
-                        "Cuisine Analysis": "Cuisine Analysis"},
-                    selected="Market Saturation"),
+                        "Cuisine Analysis": "Cuisine Analysis"
+                    },
+                    selected="Market Saturation"
+                ),
                 ui.hr(),
                 chat.sidebar(),
-                title = "AI Custom Settings"),
-            ui.card(
-                ui.card_header(ui.output_text("title")),
-                ui.output_data_frame("data_table"),
-                ui.download_button("download_ai_data", "Download filtered data", class_="mt-2"),
-                fill=True,
+                title="AI Custom Settings"
+            ),
+            ui.row(
+                ui.column(
+                    6,
+                    ui.card(
+                        ui.card_header("Consultant Chat"),
+                        chat.ui(),
+                        height="500px"
+                    ),
+                ),
+                ui.column(
+                    6,
+                    ui.card(
+                        ui.card_header(ui.output_text("title")),
+                        ui.output_data_frame("data_table"),
+                        ui.download_button("download_ai_data", "Download filtered data", class_="mt-2"),
+                        height="500px",
+                        fill=True,
+                    ),
+                )
             ),
             ui.output_ui("ai_kpi_boxes"),
             # ui.row(
-            #     ui.column(
-            #         12,
-            #         ui.card(
-            #             ui.card_header("Restaurant count by cuisine (AI-filtered)"),
-            #             output_widget("ai_plot_bar_cuisine"),
-            #             full_screen=True,
-            #         ),
-            #     ),
-            # ),
+            #      ui.column(
+            #          12,
+            #          ui.card(
+            #              ui.card_header("Restaurant count by cuisine (AI-filtered)"),
+            #              output_widget("ai_plot_bar_cuisine"),
+            #              full_screen=True,
+            #          ),
+            #      ),
+            # ),           
             fillable=True,
-            title="Foodlytics QueryChat"
         )
     )
 )
@@ -273,6 +298,8 @@ app_ui = ui.page_navbar(
 def server(input, output, session):
     @reactive.calc
     def filtered_df():
+        req(input.city(), input.cuisine(), input.price_range())
+        
         expr = restaurants
 
         if input.city():
@@ -434,8 +461,8 @@ def server(input, output, session):
         return out
 
     @reactive.Effect
+    @reactive.event(input.reset_filters)
     def reset_filters_effect():
-        input.reset_filters()
         ui.update_checkbox_group("price_range", selected=PRICE_RANGES)
         ui.update_select("cuisine", selected=CUISINES)
         ui.update_select("city", selected=CITIES)
@@ -450,7 +477,10 @@ def server(input, output, session):
 
     @render.data_frame
     def data_table():
-        return qc_vals.df()
+        res = qc_vals.df()
+        if res is None:
+            return pd.DataFrame()
+        return pd.DataFrame(res)
 
     # AI tab: value boxes and bar chart from querychat filtered dataframe
     @render.ui
@@ -491,6 +521,21 @@ def server(input, output, session):
                 ),
             ),
         )
+
+    #@reactive.Effect
+    #@reactive.event(input.analysis_mode)
+    #def ucustom_AI():
+    #    mode = input.analysis_mode()
+        
+    #    base_prompt = ("You are a strategic consultant for the Canadian food industry. Your goal is to help entrepreneurs find market gaps, analyze pricing, and identify underrepresented cuisines.")
+        
+    #    if mode == "Market Saturation":
+    #        chat.system_prompt = base_prompt + "Focus on high restaurant count in selected city as a sign of high saturation."
+    #    elif mode == "Pricing Strategy":
+    #        chat.system_prompt = base_prompt + "Prioritize price_range analysis for major cities."
+    #    elif mode == "Cuisine Analysis":
+    #        chat.system_prompt = base_prompt + "Identify cuisines with low counts but high star ratings."
+    
 
     # @render_widget
     # def ai_plot_bar_cuisine():
