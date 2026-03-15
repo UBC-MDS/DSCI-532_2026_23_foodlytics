@@ -142,6 +142,11 @@ def kpi_caption(cmp):
 
 # ── UI ──────────────────────────────────────────────────────────────
 app_ui = ui.page_navbar(
+    ui.head_content(
+        ui.tags.style(""".collapse-toggle { display: none !important; }
+.bslib-sidebar-layout { --bslib-sidebar-toggle-width: 0px !important; }
+        """)
+    ),
     ui.nav_panel(
         "Foodlytics Dashboard",
         ui.page_fillable(
@@ -241,7 +246,7 @@ app_ui = ui.page_navbar(
     ),
     ui.nav_panel(
         "AI-Powered Dashboard",
-        ui.page_sidebar(
+        ui.layout_sidebar(
             ui.sidebar(
                 ui.input_select(
                     "analysis_mode",
@@ -255,7 +260,9 @@ app_ui = ui.page_navbar(
                 ),
                 ui.hr(),
                 chat.sidebar(),
-                title="AI Custom Settings"
+                title="AI Custom Settings",
+                id="ai_sidebar",
+                open="always"
             ),
             ui.row(
                 ui.column(
@@ -522,20 +529,29 @@ def server(input, output, session):
             ),
         )
 
-    #@reactive.Effect
-    #@reactive.event(input.analysis_mode)
-    #def ucustom_AI():
-    #    mode = input.analysis_mode()
+    @reactive.Effect
+    @reactive.event(input.analysis_mode)
+    def custom_AI():
+        mode = input.analysis_mode()
+        base_prompt = ("You are a strategic consultant for the Canadian food industry. Your goal is to help entrepreneurs find market gaps, analyze pricing, and identify underrepresented cuisines.")
+
+        if mode == "Market Saturation":
+            focus_instruction = "Focus on geographic restaurant density. Identify market saturation by counting restaurants in specific cities."
+        elif mode == "Pricing Strategy":
+            focus_instruction = "Analyze the correlation between 'price_range' and 'star' ratings. "
+            "Identify value gaps where a city has high prices but lower ratings. "
+            "Suggest pricing strategies based on whether a location is underserved "
+        else:
+            focus_instruction = "Identify underrepresented cuisines with low counts but high star ratings."
+
+        final_prompt = base_prompt + focus_instruction
+
+        object.__setattr__(client1, 'system_prompt', final_prompt)
         
-    #    base_prompt = ("You are a strategic consultant for the Canadian food industry. Your goal is to help entrepreneurs find market gaps, analyze pricing, and identify underrepresented cuisines.")
-        
-    #    if mode == "Market Saturation":
-    #        chat.system_prompt = base_prompt + "Focus on high restaurant count in selected city as a sign of high saturation."
-    #    elif mode == "Pricing Strategy":
-    #        chat.system_prompt = base_prompt + "Prioritize price_range analysis for major cities."
-    #    elif mode == "Cuisine Analysis":
-    #        chat.system_prompt = base_prompt + "Identify cuisines with low counts but high star ratings."
-    
+        if hasattr(chat, 'model'):
+            object.__setattr__(chat.model, 'system_prompt', final_prompt)
+            
+        print(f"Strategic Focus updated to: {mode}")
 
     # @render_widget
     # def ai_plot_bar_cuisine():
