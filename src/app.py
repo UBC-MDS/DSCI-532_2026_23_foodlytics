@@ -535,18 +535,30 @@ def server(input, output, session):
     @reactive.event(input.analysis_mode)
     def custom_AI():
         mode = input.analysis_mode()
-        base_prompt = ("You are a strategic consultant for the Canadian food industry. Your goal is to help entrepreneurs find market gaps, analyze pricing, and identify underrepresented cuisines.")
+        base_prompt = ("You are a strategic consultant for the Canadian food industry. " 
+        "Your job is to advise entrepreneurs where and how to open restaurants using the dataset. " 
+        "You should: "
+        "1) Use the dataset to support your reasoning "
+        "2) Explain insights clearly "
+        "3) Give a final recommendation")
 
         if mode == "Market Saturation":
-            focus_instruction = "Focus on geographic restaurant density. Identify market saturation by counting restaurants in specific cities."
+            focus_instruction = ("Focus on restaurant density across cities by " 
+            "1) Counting restaurants by city. "
+            "2) Identify cities with very high restaurant density (saturated markets) "
+            "3) Identify cities with lower density (potential opportunities). "
+            "4) In your response, you should include: saturation level, recommended cities, a short business recommendation.")
         elif mode == "Pricing Strategy":
-            focus_instruction = "Analyze the correlation between 'price_range' and 'star' ratings. "
-            "Identify value gaps where a city has high prices but lower ratings. "
-            "Suggest pricing strategies based on whether a location is underserved "
+            focus_instruction = ("Focus on the relationship between price_range and star ratings by "
+            "analyzing average star ratings by price_range and indentify whether higher price ranges actually have better ratings. "
+            "In your response, include pricing insight, recommended pricing strategy based on ratings.")
         else:
-            focus_instruction = "Identify underrepresented cuisines with low counts but high star ratings."
+            focus_instruction = ("Focus on cuisine distribution using category_2 by "
+             "1) Counting restaurants by cuisine type (category_2 column) within cities "
+             "2) Identify cuisines with few restaurants. "
+             "3) In your response, mention underrepresented cuisines and cities where they are missing")
 
-        final_prompt = base_prompt + focus_instruction
+        final_prompt = base_prompt + " " + focus_instruction
 
         object.__setattr__(client1, 'system_prompt', final_prompt)
         
