@@ -12,6 +12,7 @@ from shiny import App, ui, render, reactive
 from shinywidgets import output_widget, render_altair, render_widget
 from vega_datasets import data as vega_data
 from faicons import icon_svg
+from filter_data import filter_data
 
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
@@ -245,15 +246,7 @@ def server(input, output, session):
         cuisines = input.cuisine()
         price_ranges = input.price_range()
         categories_2 = input.category_2()
-        if cities:
-            data = data[data["city"].isin(cities)]
-        if cuisines:
-            data = data[data["category_1"].isin(cuisines)]
-        if price_ranges:
-            data = data[data["price_range"].isin(price_ranges)]
-        if categories_2:
-            data = data[data["category_2"].isin(categories_2)]
-        return data
+        return filter_data(data, cities, cuisines, price_ranges, categories_2)
 
     @reactive.calc
     def summary_stats():
