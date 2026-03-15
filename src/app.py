@@ -32,6 +32,7 @@ restaurants = con.read_parquet(str(PARQUET))
 # one eager read only for startup choices / QueryChat / overall stats
 df = restaurants.execute()
 df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
+df = df[~((df["star"].isna()) & ((df["num_reviews"].isna()) | (df["num_reviews"] == 0)))]
 
 # QueryChat setup for Dashboard
 load_dotenv()
@@ -323,6 +324,7 @@ def server(input, output, session):
 
         data = expr.execute()
         data["city"] = data["city"].str.replace("Branpton", "Brampton", regex=False)
+        data = data[~((data["star"].isna()) & ((data["num_reviews"].isna()) | (data["num_reviews"] == 0)))]
         return data
 
     @reactive.calc
