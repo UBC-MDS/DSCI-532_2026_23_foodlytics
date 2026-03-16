@@ -68,3 +68,39 @@ This reactive calculation ensures that all outputs update consistently whenever 
 - **Consumed by:** `card_total_restaurants`, `card_avg_rating`
 
 This reactive calculation performs summary computations so that both statistic cards update efficiently.
+
+---
+
+## 4. Milestone 4 (M4) Additions
+
+### 4.1 Data pipeline: Parquet + DuckDB
+
+- **Source:** Processed dataset is stored as `data/processed/restaurants.parquet`.
+- **Connection:** The app connects via **ibis + DuckDB** (`ibis.duckdb.connect()`, `read_parquet`).
+- **Filtering:** All dashboard filtering (city, cuisine, price range, dish/food type) is applied at the database level inside `@reactive.calc filtered_df()`: filters are expressed as ibis expressions on the `restaurants` table, and only the matching rows are pulled into memory via `.execute()`.
+
+### 4.2 Advanced feature: QueryChat customization (Option A)
+
+In **Milestone 3** we added the AI-Powered Dashboard tab with a QueryChat interface and in M4 we customized that interface as described below.
+
+**Choice and motivation.** We chose **Option A (QueryChat Customization)** and documented the detailed prioritization in [GitHub Issue #48](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/48). In summary, our job stories center on:
+
+(1) comparing restaurant density across cities to avoid saturated areas
+
+(2) pricing strategy in Vancouver
+
+(3) distribution of cuisine types to find underserved markets. 
+
+Users need to explore these questions in a flexible way that fixed filters and visuals cannot fully capture. QueryChat customization lets us extend the AI-Powered tab with a conversational “strategic consultant” that directly supports those decisions. We considered Option D (Component click interaction) but it did not add as much analytical depth as customizing the LLM’s focus and response style.
+
+**What was implemented.**
+
+- **Custom system prompt:** The LLM is positioned as a “strategic consultant for the Canadian food industry” with context on the dataset (locations, cuisine, price ranges, ratings) and user goals (saturation, pricing, cuisine gaps).
+- **User-facing control — Strategic Focus:** A dropdown (`analysis_mode`) lets users choose the AI’s response style:
+  - **Market Saturation** — emphasize restaurant density and saturated vs. underserved areas.
+  - **Pricing Strategy** — emphasize price ranges relative to ratings.
+  - **Cuisine Analysis** — emphasize underrepresented cuisine types.
+  The selected mode updates the system prompt (via `@reactive.event(input.analysis_mode)`) so the model tailors its answers accordingly.
+- **`on_tool_request`:** We use `on_tool_request` to intercept LLM tool calls (e.g. for logging or validation). The handler logs tool name and arguments before execution.
+
+**Results and experiments.** Experiments and narrative for the Strategic Focus modes (e.g. Market Saturation vs. generic response, Pricing Strategy behavior) are documented in **[notebooks/ai_strategy_experiments.ipynb](notebooks/ai_strategy_experiments.ipynb)**. The notebook shows that the chosen modes shift the model toward density-based comparisons, price-vs.-rating analysis, and actionable advice aligned with the consultant persona.
