@@ -52,7 +52,7 @@ Foodlytics allows users to:
    ```
    so the dataset will be converted to parquet format and saved in data/processed/restaurants.parquet
 
-5. **Set up the AI-Powered Dashboard tab (optional)**  
+5. **Set up the AI-Powered Dashboard tab**  
    The app includes an AI tab that uses GitHub's model marketplace. To use it:
    - Copy the example env file and add your token:
      ```bash
@@ -87,6 +87,7 @@ pytest
 ```
 
 If you wish to run tests separately, please make sure you have set up the environment and installed playwright (step 1 and 2 above) before running the following code.
+
 **Only unit test:** 
 ```bash
 pytest tests/test_summary_stats.py
@@ -100,6 +101,7 @@ pytest tests/test_playwright.py
 ### Live Dashboard
 You can access the stable deployed dashboard here:
 https://cynthiaagata-dsci-532-2026-23-foodlytics.share.connect.posit.cloud/
+
 If you wish to see the preview link, you can access it here:
 https://cynthiaagata-dsci-532-2026-23-foodlytics-dev.share.connect.posit.cloud
 
