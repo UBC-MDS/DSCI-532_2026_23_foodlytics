@@ -70,7 +70,7 @@ Foodlytics allows users to:
 ## Running Tests
 
 There are two tests: 
-- **Unit test** `test_filter_data.py`: tests the `filter_data` function in isolation, covering single filters, multiple filters, and no filters applied.
+- **Unit test** `test_summary_stats.py`: tests the `get_summary_stats` function in isolation, covering output dictionary structure, accurate values of total number of restaurants and average rating across various data set sizes, and edge cases like empty data frame as an input.
 - **Playwright test** `test_playwright.py`: tests the dashboard UI behavior including the initial state of value boxes and the data table, filter interactions, and the reset button restoring the full data set.
 
 **How to run all tests:**
@@ -89,7 +89,7 @@ pytest
 If you wish to run tests separately, please make sure you have set up the environment and installed playwright (step 1 and 2 above) before running the following code.
 **Only unit test:** 
 ```bash
-pytest tests/test_filter_data.py
+pytest tests/test_summary_stats.py
 ```
 
 **Only playwright test:**
