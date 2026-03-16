@@ -4,7 +4,9 @@ import altair as alt
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import sys
 import os
+sys.path.insert(0, os.path.dirname(__file__))
 import chatlas as clt
 import querychat
 from dotenv import load_dotenv
