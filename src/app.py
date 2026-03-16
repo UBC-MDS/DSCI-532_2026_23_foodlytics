@@ -14,6 +14,7 @@ from vega_datasets import data as vega_data
 from faicons import icon_svg
 import ibis
 from ibis import _
+from summary_stats import get_summary_stats
 
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
@@ -81,12 +82,14 @@ CATEGORY_2 = sorted(df["category_2"].dropna().unique().tolist())
 
 # Footer content
 REPO_URL = "https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics"
+KAGGLE_URL = "https://www.kaggle.com/datasets/satoshiss/food-delivery-in-canada-door-dash"
 APP_DESCRIPTION = (
     "Foodlytics visualizes restaurant quality and type across Canada's main cities. "
-    "For businesses and entrepreneurs planning to open a new restaurant."
+    "Intended for businesses and entrepreneurs planning to open a new restaurant."
 )
 AUTHORS = "Valeria Siciliano, Cynthia Limantono, Rabin Duran, Shanze Khemani"
-LAST_UPDATED = "Feb 2026"
+LAST_UPDATED = "March 2026"
+DATA_DESCRIPTION = "Last updated: 2022"
 
 # Overall (full-dataset) stats for value-box comparisons
 OVERALL_N = len(df)
@@ -229,6 +232,17 @@ app_ui = ui.page_navbar(
                             style="margin-bottom:0.25rem;font-size:0.9rem;",
                         ),
                         ui.tags.p(
+                            "Data Source: ", 
+                            ui.tags.a(
+                                "Kaggle ",
+                                href=KAGGLE_URL,
+                                target="_blank",
+                                rel="noopener",
+                                ), 
+                             " · " + DATA_DESCRIPTION + " ",
+                            style="margin-bottom:0;font-size:0.9rem;",
+                        ),
+                        ui.tags.p(
                             ui.tags.a(
                                 "Repository",
                                 href=REPO_URL,
@@ -329,10 +343,7 @@ def server(input, output, session):
 
     @reactive.calc
     def summary_stats():
-        data = filtered_df()
-        n = len(data)
-        avg = data["star"].mean() if n else 0.0
-        return {"n_restaurants": n, "avg_rating": avg}
+        return get_summary_stats(filtered_df())
 
     @render.ui
     def kpi_boxes():
@@ -359,6 +370,7 @@ def server(input, output, session):
                     kpi_caption(cmp_n),
                     showcase=kpi_showcase(cmp_n),
                     theme=cmp_n["theme"],
+                    id="total_res",
                 ),
             ),
             ui.column(
@@ -369,6 +381,7 @@ def server(input, output, session):
                     kpi_caption(cmp_avg),
                     showcase=kpi_showcase(cmp_avg),
                     theme=cmp_avg["theme"],
+                    id="avg_rating",
                 ),
             ),
         )

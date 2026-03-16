@@ -9,5 +9,8 @@ anywidget
 querychat
 chatlas
 python-dotenv
+pytest
+pytest-playwright
 duckdb
 pyarrow
+ibis-framework[duckdb]
