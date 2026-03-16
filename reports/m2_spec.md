@@ -100,7 +100,7 @@ Users need to explore these questions in a flexible way that fixed filters and v
   - **Market Saturation** — emphasize restaurant density and saturated vs. underserved areas.
   - **Pricing Strategy** — emphasize price ranges relative to ratings.
   - **Cuisine Analysis** — emphasize underrepresented cuisine types.
-  The selected mode updates the system prompt (via `@reactive.event(input.analysis_mode)`) so the model tailors its answers accordingly.
+  The selected mode updates the system prompt (via `mode = input.analysis_mode()`) so the model tailors its answers accordingly.
 - **`on_tool_request`:** We use `on_tool_request` to intercept LLM tool calls (e.g. for logging or validation). The handler logs tool name and arguments before execution.
 
 **Results and experiments.** Experiments and narrative for the Strategic Focus modes (e.g. Market Saturation vs. generic response, Pricing Strategy behavior) are documented in **[notebooks/ai_strategy_experiments.ipynb](notebooks/ai_strategy_experiments.ipynb)**. The notebook shows that the chosen modes shift the model toward density-based comparisons, price-vs.-rating analysis, and actionable advice aligned with the consultant persona.

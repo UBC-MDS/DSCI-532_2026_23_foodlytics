@@ -532,9 +532,11 @@ def server(input, output, session):
         )
 
     @reactive.Effect
-    @reactive.event(input.analysis_mode)
     def custom_AI():
         mode = input.analysis_mode()
+        if not mode:
+            return
+        
         base_prompt = ("You are a strategic consultant for the Canadian food industry. " 
         "Your job is to advise entrepreneurs where and how to open restaurants using the dataset. " 
         "You should: "
@@ -560,10 +562,10 @@ def server(input, output, session):
 
         final_prompt = base_prompt + " " + focus_instruction
 
-        object.__setattr__(client1, 'system_prompt', final_prompt)
+        client1.system_prompt = final_prompt
         
         if hasattr(chat, 'model'):
-            object.__setattr__(chat.model, 'system_prompt', final_prompt)
+            chat.model.system_prompt = final_prompt
             
         print(f"Strategic Focus updated to: {mode}")
 
