@@ -107,4 +107,56 @@ N/A
 ### Reflection
 
 With the AI-powered dashboard tab, we can type in the chatbot for commanding AI to do simple tasks like filtering the dataset that we have. Furthermore, we can see the responding dataframe with three other visual features: Barplot of "Restaurant Count by Cuisine", Total Restaurants, and Average rating of the filtered restaurants. In addition, we could download the filtered dataframe into a csv file and the resulting barplot into a png file.
-One current limitation we have is that the AI chatbot can only do simple task like filtering with obvious command. Improvements can be made by using an Anthropic API key to enhance the AI feature for future projects. There is no intentional deviations from DSCI 531 visualization best practices so far. 
+One current limitation we have is that the AI chatbot can only do simple task like filtering with obvious command. Improvements can be made by using an Anthropic API key to enhance the AI feature for future projects. There is no intentional deviations from DSCI 531 visualization best practices so far.
+
+## [0.4.0] - 2026-03-15
+
+### Added
+
+- Data pipeline: parquet + DuckDB via ibis and filtering in `@reactive.calc` before data enters a DataFrame (`#46`).
+- Script `scripts/convert_to_parquet.py`, `data/processed/restaurants.parquet`, and README instructions for generating parquet (`#46`).
+- Advanced feature (Option A): QueryChat customization with custom system prompt, Strategic Focus dropdown (Market Saturation / Pricing Strategy / Cuisine Analysis), `on_tool_request` for tool-call interception including experiment notebook `notebooks/ai_strategy_experiments.ipynb` (`#47`).
+- Refactored `filter_data` in `src/filter_data.py`, unit tests `tests/test_filter_data.py`, Playwright tests `tests/test_playwright.py`, and README section for running tests (`#49`).
+
+### Changed
+
+- Spec document updated with M4 additions: parquet/DuckDB pipeline and advanced feature (Option A) motivation and implementation (`reports/m2_spec.md`) via `#50`.
+- CONTRIBUTING.md updated with M3 retrospective and M4 collaboration norms (incl. feedback from `#34`) via `#50`.
+
+### Fixed
+
+- Addressed feedback: map sizing and reduced scrollability in AI-Powered Dashboard tab (`#45`) via `#46`.
+- Addressed feedback: filtered out restaurants with no ratings/reviews (`#42`) via `#47`
+- Addressed feedback: Data coverage dates are not specified (`#41`) addressed via `#49`.
+- Addressed feedback: The download button is hard to see (`#43`) via `#50`.
+
+- **Feedback prioritization issue link:** [#39](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/39). We categorized feedback as critical (accuracy/data integrity) or non-critical. One critical-ish item (restaurants with missing ratings/reviews and filter NAs such as "redbull") was addressed. Non-critical items (data coverage dates, AI tab layout, download button visibility) were prioritized for impact on user experience.
+
+### Known Issues
+
+N/A
+
+### Release Highlight: QueryChat Customization (Option A)
+
+The AI-Powered Dashboard tab now lets users choose a **Strategic Focus** (Market Saturation, Pricing Strategy, or Cuisine Analysis). The LLM’s system prompt is updated accordingly so answers emphasize density, price-vs.-rating, or underrepresented cuisines. Tool calls are intercepted via `on_tool_request` for validation/logging. Experiments are documented in `notebooks/ai_strategy_experiments.ipynb`.
+
+- **Option chosen:** A (QueryChat Customization)
+- **PR:** #47
+- **Why this option over the others:** Our job stories center on saturation, pricing, and cuisine gaps; users need flexible exploration that fixed filters can’t fully provide. We chose Option A over Option D because customizing the LLM’s focus adds more analytical depth than component click interaction. See `#48`.
+- **Feature prioritization issue link:** [#48](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/48)
+
+### Collaboration
+
+- **CONTRIBUTING.md:** Updated with M3 retrospective and M4 norms (spread of work, scoped PRs, design before code, reviews) (`#50`)
+- **M3 retrospective:** Scoped PRs and docs worked well, code was concentrated with one member (`#34`). We addressed this in M4.
+- **M4:** Work distributed across PRs (#46 parquet, #47 advanced feature, #49 tests, and #50 changelog and reflection).
+
+### Reflection
+
+The dashboard now loads data via parquet and DuckDB with filtering at the database level, supports strategic AI queries with a configurable focus, and has documented tests (Playwright for UI behavior, pytest for `get_summary_stats`). Limitations include the need for a GitHub token for the AI tab and dataset size assumptions in tests. No intentional deviations from DSCI 531 visualization practices.
+
+**Tests.** The unit tests (`test_summary_stats`) cover the `get_summary_stats` function: they check the output dictionary structure, accurate values of total number of restaurants and average rating across various dataset sizes, and edge cases like empty data frame as an input. The Playwright tests ensure the dashboard shows the full dataset in its original state on load, that applying one or multiple filters produces the expected counts and table, and that the reset button restores the original dataset and value boxes. *What could break:* If `get_summary_stats` or the summary logic changes, the unit tests would fail and the value boxes for total restaurants and average rating could become inaccurate. If the initial state, filter behavior, or reset logic changes, the Playwright tests would fail and users could see inaccurate filtered data or lose the ability to return to the original state, and dashboard behavior would no longer match what we expect.
+
+**Trade-offs:** We prioritized feedback that affected accuracy (e.g. missing ratings/reviews and filter NAs) or user experience (coverage dates, layout, button visibility). Full categorization and rationale are in [#39](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/39). Critical items were resolved first, with at least one item per team member.
+
+**Most useful:** Lecture 7 and Lecture 8 were the most useful for M4. Lecture 7 (parquet and DuckDB) guided our data pipeline refactor: switching to parquet, connecting with ibis + DuckDB, and keeping filtering in `@reactive.calc` before data becomes a DataFrame. Lecture 8 shaped how we added the refactored `filter_data` unit tests and the Playwright tests for initial state, filters, and reset behavior.

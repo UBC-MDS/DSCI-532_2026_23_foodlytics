@@ -4,31 +4,66 @@ import altair as alt
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import sys
 import os
+sys.path.insert(0, os.path.dirname(__file__))
 import chatlas as clt
 import querychat
 from dotenv import load_dotenv
-from shiny import App, ui, render, reactive
+from shiny import App, ui, render, reactive, req
 from shinywidgets import output_widget, render_altair, render_widget
 from vega_datasets import data as vega_data
 from faicons import icon_svg
+import ibis
+from ibis import _
+from summary_stats import get_summary_stats
 
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
+_PROCESSED_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 
-# Load data
-def get_data():
-    df = pd.read_csv(_DATA_DIR / "cleaned_full_data.csv")
-    df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
-    return df
+PARQUET = _PROCESSED_DIR / "restaurants.parquet"
 
-# QueryChat setup for Dashboard 
+if not PARQUET.exists():
+    raise FileNotFoundError(
+        "Missing parquet file. Create data/processed/restaurants.parquet first."
+    )
+
+con = ibis.duckdb.connect()
+restaurants = con.read_parquet(str(PARQUET))
+
+# one eager read only for startup choices / QueryChat / overall stats
+df = restaurants.execute()
+df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
+df = df[~((df["star"].isna()) & ((df["num_reviews"].isna()) | (df["num_reviews"] == 0)))]
+
+# QueryChat setup for Dashboard
 load_dotenv()
-df = get_data()
+
+def log_AI_interactions(*args, **kwargs):
+    if len(args) >= 2:
+        tool_request = args[1]
+        print(f"Tool Name: {tool_request.name}", flush=True)
+        print(f"Arguments: {tool_request.args}", flush=True)
+        return tool_request
+    return args[0] 
+
+client1 = clt.ChatGithub(
+    model="gpt-4o-mini",
+    system_prompt = """You are a strategic consultant for the Canadian food industry.
+Your goal is to assist entrepreneurs in identifying potential locations with low restaurant
+density and to analyze price ranges to suggest pricing strategies. You can also identify
+different cuisine types and food categories that are underrepresented in certain cities.
+The dataset includes star ratings and reviews which should be used to determine where
+the user should invest. For instance, if a city has many restaurants of a certain cuisine,
+it would be "highly saturated".""")
+
+client1.on_tool_request(log_AI_interactions)
+
 chat = querychat.QueryChat(
-    df, 
-    "foodlytics",
-    client=clt.ChatGithub(model="gpt-4.1-mini")
+   df,
+   "foodlytics",
+   client=client1
 )
 
 def get_cities_coords():
@@ -49,12 +84,14 @@ CATEGORY_2 = sorted(df["category_2"].dropna().unique().tolist())
 
 # Footer content
 REPO_URL = "https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics"
+KAGGLE_URL = "https://www.kaggle.com/datasets/satoshiss/food-delivery-in-canada-door-dash"
 APP_DESCRIPTION = (
     "Foodlytics visualizes restaurant quality and type across Canada's main cities. "
-    "For businesses and entrepreneurs planning to open a new restaurant."
+    "Intended for businesses and entrepreneurs planning to open a new restaurant."
 )
 AUTHORS = "Valeria Siciliano, Cynthia Limantono, Rabin Duran, Shanze Khemani"
-LAST_UPDATED = "Feb 2026"
+LAST_UPDATED = "March 2026"
+DATA_DESCRIPTION = "Last updated: 2022"
 
 # Overall (full-dataset) stats for value-box comparisons
 OVERALL_N = len(df)
@@ -111,6 +148,11 @@ def kpi_caption(cmp):
 
 # ── UI ──────────────────────────────────────────────────────────────
 app_ui = ui.page_navbar(
+    ui.head_content(
+        ui.tags.style(""".collapse-toggle { display: none !important; }
+.bslib-sidebar-layout { --bslib-sidebar-toggle-width: 0px !important; }
+        """)
+    ),
     ui.nav_panel(
         "Foodlytics Dashboard",
         ui.page_fillable(
@@ -192,6 +234,17 @@ app_ui = ui.page_navbar(
                             style="margin-bottom:0.25rem;font-size:0.9rem;",
                         ),
                         ui.tags.p(
+                            "Data Source: ", 
+                            ui.tags.a(
+                                "Kaggle ",
+                                href=KAGGLE_URL,
+                                target="_blank",
+                                rel="noopener",
+                                ), 
+                             " · " + DATA_DESCRIPTION + " ",
+                            style="margin-bottom:0;font-size:0.9rem;",
+                        ),
+                        ui.tags.p(
                             ui.tags.a(
                                 "Repository",
                                 href=REPO_URL,
@@ -210,27 +263,56 @@ app_ui = ui.page_navbar(
     ),
     ui.nav_panel(
         "AI-Powered Dashboard",
-        ui.page_sidebar(
-            chat.sidebar(),
-            ui.card(
-                ui.card_header(ui.output_text("title")),
-                ui.output_data_frame("data_table"),
-                ui.download_button("download_ai_data", "Download filtered data", class_="mt-2"),
-                fill=True,
+        ui.layout_sidebar(
+            ui.sidebar(
+                ui.input_select(
+                    "analysis_mode",
+                    "Strategic Focus",
+                    choices={
+                        "Market Saturation": "Market Saturation",
+                        "Pricing Strategy": "Pricing Strategy",
+                        "Cuisine Analysis": "Cuisine Analysis"
+                    },
+                    selected="Market Saturation"
+                ),
+                ui.hr(),
+                chat.sidebar(),
+                title="AI Custom Settings",
+                id="ai_sidebar",
+                open="always"
             ),
-            ui.output_ui("ai_kpi_boxes"),
             ui.row(
                 ui.column(
-                    12,
+                    6,
                     ui.card(
-                        ui.card_header("Restaurant count by cuisine (AI-filtered)"),
-                        output_widget("ai_plot_bar_cuisine"),
-                        full_screen=True,
+                        ui.card_header("Consultant Chat"),
+                        chat.ui(),
+                        height="500px"
                     ),
                 ),
+                ui.column(
+                    6,
+                    ui.card(
+                        ui.card_header(ui.output_text("title")),
+                        ui.output_data_frame("data_table"),
+                        ui.download_button("download_ai_data", "Download filtered data", class_="btn btn-primary mt-2"),
+                        height="500px",
+                        fill=True,
+                    ),
+                )
             ),
+            ui.output_ui("ai_kpi_boxes"),
+            # ui.row(
+            #      ui.column(
+            #          12,
+            #          ui.card(
+            #              ui.card_header("Restaurant count by cuisine (AI-filtered)"),
+            #              output_widget("ai_plot_bar_cuisine"),
+            #              full_screen=True,
+            #          ),
+            #      ),
+            # ),           
             fillable=True,
-            title="Foodlytics QueryChat"
         )
     )
 )
@@ -240,27 +322,30 @@ app_ui = ui.page_navbar(
 def server(input, output, session):
     @reactive.calc
     def filtered_df():
-        data = df.copy()
-        cities = input.city()
-        cuisines = input.cuisine()
-        price_ranges = input.price_range()
-        categories_2 = input.category_2()
-        if cities:
-            data = data[data["city"].isin(cities)]
-        if cuisines:
-            data = data[data["category_1"].isin(cuisines)]
-        if price_ranges:
-            data = data[data["price_range"].isin(price_ranges)]
-        if categories_2:
-            data = data[data["category_2"].isin(categories_2)]
+        req(input.city(), input.cuisine(), input.price_range())
+        
+        expr = restaurants
+
+        if input.city():
+            expr = expr.filter(_.city.isin(input.city()))
+
+        if input.cuisine():
+            expr = expr.filter(_.category_1.isin(input.cuisine()))
+
+        if input.price_range():
+            expr = expr.filter(_.price_range.isin(input.price_range()))
+
+        if input.category_2():
+            expr = expr.filter(_.category_2.isin(input.category_2()))
+
+        data = expr.execute()
+        data["city"] = data["city"].str.replace("Branpton", "Brampton", regex=False)
+        data = data[~((data["star"].isna()) & ((data["num_reviews"].isna()) | (data["num_reviews"] == 0)))]
         return data
 
     @reactive.calc
     def summary_stats():
-        data = filtered_df()
-        n = len(data)
-        avg = data["star"].mean() if n else 0.0
-        return {"n_restaurants": n, "avg_rating": avg}
+        return get_summary_stats(filtered_df())
 
     @render.ui
     def kpi_boxes():
@@ -287,6 +372,7 @@ def server(input, output, session):
                     kpi_caption(cmp_n),
                     showcase=kpi_showcase(cmp_n),
                     theme=cmp_n["theme"],
+                    id="total_res",
                 ),
             ),
             ui.column(
@@ -297,6 +383,7 @@ def server(input, output, session):
                     kpi_caption(cmp_avg),
                     showcase=kpi_showcase(cmp_avg),
                     theme=cmp_avg["theme"],
+                    id="avg_rating",
                 ),
             ),
         )
@@ -311,6 +398,7 @@ def server(input, output, session):
             alt.Chart(countries_topo)
             .mark_geoshape(fill="#e0e0e0", stroke="white", strokeWidth=0.5)
             .transform_filter(alt.datum.id == 124)
+            .properties(width=500, height=200)
         )
 
         if data.empty:
@@ -330,8 +418,8 @@ def server(input, output, session):
         map_df = by_city.merge(coords, on="city", how="inner")
         if map_df.empty:
             return (
-                base.project(type=proj)
-                .properties(width="container", height=380, title="Restaurant count by city — Canada")
+                base.project(type=proj, fit=base)
+                .properties(width="container", height=450, title="Restaurant count by city — Canada")
             )
 
         # Data-driven layer: size = restaurants, color = total reviews
@@ -356,7 +444,7 @@ def server(input, output, session):
         return (
             alt.layer(base, points)
             .project(type=proj)
-            .properties(width=420, height=360, title="Restaurant count by city — Canada")
+            .properties(width="container", height=360, title="Restaurant count by city — Canada")
         )
 
     @render_widget
@@ -397,8 +485,8 @@ def server(input, output, session):
         return out
 
     @reactive.Effect
-    def _():
-        input.reset_filters()
+    @reactive.event(input.reset_filters)
+    def reset_filters_effect():
         ui.update_checkbox_group("price_range", selected=PRICE_RANGES)
         ui.update_select("cuisine", selected=CUISINES)
         ui.update_select("city", selected=CITIES)
@@ -413,7 +501,10 @@ def server(input, output, session):
 
     @render.data_frame
     def data_table():
-        return qc_vals.df()
+        res = qc_vals.df()
+        if res is None:
+            return pd.DataFrame()
+        return pd.DataFrame(res)
 
     # AI tab: value boxes and bar chart from querychat filtered dataframe
     @render.ui
@@ -455,34 +546,72 @@ def server(input, output, session):
             ),
         )
 
-    @render_widget
-    def ai_plot_bar_cuisine():
-        data = qc_vals.df()
-        if data.empty or "category_1" not in data.columns:
-            fig = go.Figure()
-            fig.add_annotation(
-                text="No data or no cuisine column. Try a query in the chat.",
-                xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
-                font=dict(size=14),
-            )
-            fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
-            return fig
-        agg = data["category_1"].value_counts().reset_index()
-        agg.columns = ["cuisine", "count"]
-        agg = agg.sort_values("count", ascending=True).tail(20)
-        fig = px.bar(
-            agg,
-            x="count",
-            y="cuisine",
-            orientation="h",
-            labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
-            color="count",
-            color_continuous_scale="blues",
-        )
-        fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
-                              plot_bgcolor="white",
-                              paper_bgcolor="white")
-        return fig
+    @reactive.Effect
+    def custom_AI():
+        mode = input.analysis_mode()
+        if not mode:
+            return
+        
+        base_prompt = ("You are a strategic consultant for the Canadian food industry. " 
+        "Your job is to advise entrepreneurs where and how to open restaurants using the dataset. " 
+        "You should: "
+        "1) Use the dataset to support your reasoning "
+        "2) Explain insights clearly "
+        "3) Give a final recommendation")
+
+        if mode == "Market Saturation":
+            focus_instruction = ("Focus on restaurant density across cities by " 
+            "1) Counting restaurants by city. "
+            "2) Identify cities with very high restaurant density (saturated markets) "
+            "3) Identify cities with lower density (potential opportunities). "
+            "4) In your response, you should include: saturation level, recommended cities, a short business recommendation.")
+        elif mode == "Pricing Strategy":
+            focus_instruction = ("Focus on the relationship between price_range and star ratings by "
+            "analyzing average star ratings by price_range and indentify whether higher price ranges actually have better ratings. "
+            "In your response, include pricing insight, recommended pricing strategy based on ratings.")
+        else:
+            focus_instruction = ("Focus on cuisine distribution using category_2 by "
+             "1) Counting restaurants by cuisine type (category_2 column) within cities "
+             "2) Identify cuisines with few restaurants. "
+             "3) In your response, mention underrepresented cuisines and cities where they are missing")
+
+        final_prompt = base_prompt + " " + focus_instruction
+
+        client1.system_prompt = final_prompt
+        
+        if hasattr(chat, 'model'):
+            chat.model.system_prompt = final_prompt
+            
+        print(f"Strategic Focus updated to: {mode}")
+
+    # @render_widget
+    # def ai_plot_bar_cuisine():
+    #     data = qc_vals.df()
+    #     if data.empty or "category_1" not in data.columns:
+    #         fig = go.Figure()
+    #         fig.add_annotation(
+    #             text="No data or no cuisine column. Try a query in the chat.",
+    #             xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+    #             font=dict(size=14),
+    #         )
+    #         fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
+    #         return fig
+    #     agg = data["category_1"].value_counts().reset_index()
+    #     agg.columns = ["cuisine", "count"]
+    #     agg = agg.sort_values("count", ascending=True).tail(20)
+    #     fig = px.bar(
+    #         agg,
+    #         x="count",
+    #         y="cuisine",
+    #         orientation="h",
+    #         labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
+    #         color="count",
+    #         color_continuous_scale="blues",
+    #     )
+    #     fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
+    #                           plot_bgcolor="white",
+    #                           paper_bgcolor="white")
+    #     return fig
 
     @render.download(filename="querychat_filtered_data.csv")
     def download_ai_data():
