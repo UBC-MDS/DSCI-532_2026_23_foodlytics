@@ -17,8 +17,10 @@ def toy_df():
     })
 
 def test_one_filter(toy_df):
-    """ Test to verify that a single filter correctly returns only matching rows, 
-    ensuring filters work independently."""
+    """ 
+    Test to verify that a single filter correctly returns only matching rows, 
+    ensuring filters work independently.
+    """
     result = filter_data(toy_df, cities=["Toronto"])
     result2 = filter_data(toy_df, price_ranges=["$"] )
     result3 = filter_data(toy_df, categories_2=["burger", "dry pot"])
@@ -27,8 +29,10 @@ def test_one_filter(toy_df):
     assert len(result3) == 3
 
 def test_multiple_filter(toy_df):
-    """ Test if applying multiple filter categories work as expected, 
-    ensuring filter works with multiple random filters"""
+    """ 
+    Test if applying multiple filter categories work as expected, 
+    ensuring filter works with multiple random filters.
+    """
     result = filter_data(toy_df, cities=["Toronto", "Montreal"], price_ranges=["$", "$$$"])
     result2 = filter_data(toy_df, 
                           cities=["Toronto", "Vancouver", "Montreal"], 
@@ -39,7 +43,9 @@ def test_multiple_filter(toy_df):
     assert len(result2) == 3
 
 def test_no_filter(toy_df):
-    """ Test if applying no filter category will include all values in the original data set,
-    ensuring default function works as expected"""
+    """ 
+    Test if applying no filter category will include all values in the original data set,
+    ensuring default function works as expected.
+    """
     result = filter_data(toy_df)
     assert len(result) == len(toy_df)
