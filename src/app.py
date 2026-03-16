@@ -280,6 +280,7 @@ def server(input, output, session):
                     kpi_caption(cmp_n),
                     showcase=kpi_showcase(cmp_n),
                     theme=cmp_n["theme"],
+                    id="total_res",
                 ),
             ),
             ui.column(
@@ -290,6 +291,7 @@ def server(input, output, session):
                     kpi_caption(cmp_avg),
                     showcase=kpi_showcase(cmp_avg),
                     theme=cmp_avg["theme"],
+                    id="avg_rating",
                 ),
             ),
         )
@@ -389,7 +391,8 @@ def server(input, output, session):
         out = out.rename(columns={"restaurant": "Restaurant", "star": "Stars", "num_reviews": "# of Reviews"})
         return out
 
-    @reactive.Effect
+    @reactive.effect
+    @reactive.event(input.reset_filters)
     def _():
         input.reset_filters()
         ui.update_checkbox_group("price_range", selected=PRICE_RANGES)
