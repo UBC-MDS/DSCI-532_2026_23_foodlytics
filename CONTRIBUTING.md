@@ -95,3 +95,36 @@ Before you submit a pull request, check that it meets these guidelines:
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated. Put your new functionality into a function with a docstring.
 3. Your pull request will automatically be checked by the full test suite. It needs to pass all of them before it can be considered for merging.
+
+---
+
+## Milestone 3 (M3) retrospective
+
+Brief reflection on how we collaborated during M3:
+
+**What worked**
+
+- Delivered the AI-powered dashboard tab via scoped PRs: QueryChat interface and dataframe output (`#30`), barplot + KPI cards + data download (`#31`), and UI fixes for map and bar plot (`#32`).
+- README and dependencies were updated alongside the new feature so the AI tab was documented from the start.
+- The AI tab added clear value: users can filter the dataset via chat and see the result in a table, bar chart, and summary cards, with CSV download.
+
+**What didn’t or could improve**
+
+- The AI chatbot was limited to straightforward filtering with obvious commands; we addressed this in M4 by customizing QueryChat (Strategic Focus, system prompt, `on_tool_request`).
+- For M4 we are committing to updating the spec before larger code changes and spreading work so no single person carries the codebase (see M4 norms below).
+
+---
+
+## Milestone 4 (M4) collaboration norms
+
+Feedback in [issue #34](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/34) noted that code contributions were concentrated with one team member during M3. In M4 we aimed to distribute work more evenly. The norms below support that.
+
+For M4 we commit to:
+
+- **Scoped PRs:** One feature or fix per PR and atomic commits and meaningful messages.
+- **Design before code:** For larger changes, update the spec (or open an issue) to describe intent before implementing.
+- **Reviews:** Every PR gets at least one peer review before merge and avoid long review backlogs.
+- **Spread of work:** No single person dominates the codebase or the review queue and each team member resolves at least one M4 feedback item.
+- **No deadline-eve bursts:** Spread contributions across the milestone where possible.
+
+These norms are on record via this CONTRIBUTING update.

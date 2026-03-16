@@ -13,4 +13,4 @@ pytest
 pytest-playwright
 duckdb
 pyarrow
-ibis-framework
+ibis-framework[duckdb]
