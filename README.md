@@ -27,7 +27,19 @@ This dashboard visualizes restaurant quality and type across Canada’s main cit
      ```
    Data will be saved to `data/raw/` (including `cleaned_full_data.csv`).
 
-4. **Set up the AI-Powered Dashboard tab (optional)**  
+4. **Convert to parquet**
+   For faster loading of the file, the dashboard reads the dataset from a parquet file, so the user can find it already converted here:
+   ```bash
+   data/processed/restaurants.parquet
+   ```
+
+   In alternative, the user can generate the parquet file from the processed .csv by running the following:
+   ```bash
+   python scripts/convert_to_parquet.py
+   ```
+   so the dataset will be converted to parquet format and saved in data/processed/restaurants.parquet
+
+5. **Set up the AI-Powered Dashboard tab (optional)**  
    The app includes an AI tab that uses GitHub's model marketplace. To use it:
    - Copy the example env file and add your token:
      ```bash
@@ -36,7 +48,7 @@ This dashboard visualizes restaurant quality and type across Canada’s main cit
    - Edit `.env` and set `GITHUB_TOKEN` to a [GitHub Personal Access Token (classic)](https://github.com/settings/tokens). Create one under **Settings → Developer settings → Personal access tokens → Tokens (classic)**. A short expiration (e.g. 30 days) and no scopes are usually enough for local use.
    - Do not commit `.env`; it is listed in `.gitignore`.
 
-5. **Start the dashboard:**
+6. **Start the dashboard:**
    ```bash
    shiny run src/app.py
    ```

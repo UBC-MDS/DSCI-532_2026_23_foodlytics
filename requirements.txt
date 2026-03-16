@@ -9,3 +9,5 @@ anywidget
 querychat
 chatlas
 python-dotenv
+duckdb
+pyarrow

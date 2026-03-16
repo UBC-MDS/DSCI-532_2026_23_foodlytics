@@ -12,23 +12,35 @@ from shiny import App, ui, render, reactive
 from shinywidgets import output_widget, render_altair, render_widget
 from vega_datasets import data as vega_data
 from faicons import icon_svg
+import ibis
+from ibis import _
 
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
+_PROCESSED_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 
-# Load data
-def get_data():
-    df = pd.read_csv(_DATA_DIR / "cleaned_full_data.csv")
-    df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
-    return df
+PARQUET = _PROCESSED_DIR / "restaurants.parquet"
 
-# QueryChat setup for Dashboard 
+if not PARQUET.exists():
+    raise FileNotFoundError(
+        "Missing parquet file. Create data/processed/restaurants.parquet first."
+    )
+
+con = ibis.duckdb.connect()
+restaurants = con.read_parquet(str(PARQUET))
+
+# one eager read only for startup choices / QueryChat / overall stats
+df = restaurants.execute()
+df["city"] = df["city"].str.replace("Branpton", "Brampton", regex=False)
+
+# QueryChat setup for Dashboard
 load_dotenv()
-df = get_data()
+
+
 chat = querychat.QueryChat(
-    df, 
-    "foodlytics",
-    client=clt.ChatGithub(model="gpt-4.1-mini")
+   df, 
+   "foodlytics",
+   client=clt.ChatGithub(model="gpt-4o-mini")
 )
 
 def get_cities_coords():
@@ -219,16 +231,16 @@ app_ui = ui.page_navbar(
                 fill=True,
             ),
             ui.output_ui("ai_kpi_boxes"),
-            ui.row(
-                ui.column(
-                    12,
-                    ui.card(
-                        ui.card_header("Restaurant count by cuisine (AI-filtered)"),
-                        output_widget("ai_plot_bar_cuisine"),
-                        full_screen=True,
-                    ),
-                ),
-            ),
+            # ui.row(
+            #     ui.column(
+            #         12,
+            #         ui.card(
+            #             ui.card_header("Restaurant count by cuisine (AI-filtered)"),
+            #             output_widget("ai_plot_bar_cuisine"),
+            #             full_screen=True,
+            #         ),
+            #     ),
+            # ),
             fillable=True,
             title="Foodlytics QueryChat"
         )
@@ -240,19 +252,22 @@ app_ui = ui.page_navbar(
 def server(input, output, session):
     @reactive.calc
     def filtered_df():
-        data = df.copy()
-        cities = input.city()
-        cuisines = input.cuisine()
-        price_ranges = input.price_range()
-        categories_2 = input.category_2()
-        if cities:
-            data = data[data["city"].isin(cities)]
-        if cuisines:
-            data = data[data["category_1"].isin(cuisines)]
-        if price_ranges:
-            data = data[data["price_range"].isin(price_ranges)]
-        if categories_2:
-            data = data[data["category_2"].isin(categories_2)]
+        expr = restaurants
+
+        if input.city():
+            expr = expr.filter(_.city.isin(input.city()))
+
+        if input.cuisine():
+            expr = expr.filter(_.category_1.isin(input.cuisine()))
+
+        if input.price_range():
+            expr = expr.filter(_.price_range.isin(input.price_range()))
+
+        if input.category_2():
+            expr = expr.filter(_.category_2.isin(input.category_2()))
+
+        data = expr.execute()
+        data["city"] = data["city"].str.replace("Branpton", "Brampton", regex=False)
         return data
 
     @reactive.calc
@@ -311,6 +326,7 @@ def server(input, output, session):
             alt.Chart(countries_topo)
             .mark_geoshape(fill="#e0e0e0", stroke="white", strokeWidth=0.5)
             .transform_filter(alt.datum.id == 124)
+            .properties(width=500, height=200)
         )
 
         if data.empty:
@@ -330,8 +346,8 @@ def server(input, output, session):
         map_df = by_city.merge(coords, on="city", how="inner")
         if map_df.empty:
             return (
-                base.project(type=proj)
-                .properties(width="container", height=380, title="Restaurant count by city — Canada")
+                base.project(type=proj, fit=base)
+                .properties(width="container", height=450, title="Restaurant count by city — Canada")
             )
 
         # Data-driven layer: size = restaurants, color = total reviews
@@ -356,7 +372,7 @@ def server(input, output, session):
         return (
             alt.layer(base, points)
             .project(type=proj)
-            .properties(width=420, height=360, title="Restaurant count by city — Canada")
+            .properties(width="container", height=360, title="Restaurant count by city — Canada")
         )
 
     @render_widget
@@ -397,7 +413,7 @@ def server(input, output, session):
         return out
 
     @reactive.Effect
-    def _():
+    def reset_filters_effect():
         input.reset_filters()
         ui.update_checkbox_group("price_range", selected=PRICE_RANGES)
         ui.update_select("cuisine", selected=CUISINES)
@@ -455,34 +471,34 @@ def server(input, output, session):
             ),
         )
 
-    @render_widget
-    def ai_plot_bar_cuisine():
-        data = qc_vals.df()
-        if data.empty or "category_1" not in data.columns:
-            fig = go.Figure()
-            fig.add_annotation(
-                text="No data or no cuisine column. Try a query in the chat.",
-                xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
-                font=dict(size=14),
-            )
-            fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
-            return fig
-        agg = data["category_1"].value_counts().reset_index()
-        agg.columns = ["cuisine", "count"]
-        agg = agg.sort_values("count", ascending=True).tail(20)
-        fig = px.bar(
-            agg,
-            x="count",
-            y="cuisine",
-            orientation="h",
-            labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
-            color="count",
-            color_continuous_scale="blues",
-        )
-        fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
-                              plot_bgcolor="white",
-                              paper_bgcolor="white")
-        return fig
+    # @render_widget
+    # def ai_plot_bar_cuisine():
+    #     data = qc_vals.df()
+    #     if data.empty or "category_1" not in data.columns:
+    #         fig = go.Figure()
+    #         fig.add_annotation(
+    #             text="No data or no cuisine column. Try a query in the chat.",
+    #             xref="paper", yref="paper", x=0.5, y=0.5, showarrow=False,
+    #             font=dict(size=14),
+    #         )
+    #         fig.update_layout(height=400, xaxis=dict(visible=False), yaxis=dict(visible=False))
+    #         return fig
+    #     agg = data["category_1"].value_counts().reset_index()
+    #     agg.columns = ["cuisine", "count"]
+    #     agg = agg.sort_values("count", ascending=True).tail(20)
+    #     fig = px.bar(
+    #         agg,
+    #         x="count",
+    #         y="cuisine",
+    #         orientation="h",
+    #         labels={"count": "Number of restaurants", "cuisine": "Cuisine"},
+    #         color="count",
+    #         color_continuous_scale="blues",
+    #     )
+    #     fig.update_layout(showlegend=False, height=400, margin=dict(l=20, r=20, t=20, b=20),
+    #                           plot_bgcolor="white",
+    #                           paper_bgcolor="white")
+    #     return fig
 
     @render.download(filename="querychat_filtered_data.csv")
     def download_ai_data():
