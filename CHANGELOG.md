@@ -123,14 +123,14 @@ One current limitation we have is that the AI chatbot can only do simple task li
 - Spec document updated with M4 additions: parquet/DuckDB pipeline and advanced feature (Option A) motivation and implementation (`reports/m2_spec.md`) via `#50`.
 - CONTRIBUTING.md updated with M3 retrospective and M4 collaboration norms (incl. feedback from `#34`) via `#50`.
 
-- **Feedback prioritization issue link:** [#39](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/39). We categorized feedback as critical (accuracy/data integrity) or non-critical. One critical-ish item (restaurants with missing ratings/reviews and filter NAs such as "redbull") was addressed. Non-critical items (data coverage dates, AI tab layout, download button visibility) were prioritized for impact on user experience.
-
 ### Fixed
 
-- Addressed map sizing and reduced scrollability in AI-Powered Dashboard tab (`#45`) via `#46`.
+- Addressed feedback: map sizing and reduced scrollability in AI-Powered Dashboard tab (`#45`) via `#46`.
 - Addressed feedback: filtered out restaurants with no ratings/reviews (`#42`) via `#47`
 - Addressed feedback: Data coverage dates are not specified (`#41`) addressed via `#49`.
 - Addressed feedback: The download button is hard to see (`#43`) via `#50`.
+
+- **Feedback prioritization issue link:** [#39](https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics/issues/39). We categorized feedback as critical (accuracy/data integrity) or non-critical. One critical-ish item (restaurants with missing ratings/reviews and filter NAs such as "redbull") was addressed. Non-critical items (data coverage dates, AI tab layout, download button visibility) were prioritized for impact on user experience.
 
 ### Known Issues
 
