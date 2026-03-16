@@ -14,8 +14,8 @@ def test_initial_value_boxes(page: Page, app: ShinyAppProc) -> None:
 
     total_res = controller.ValueBox(page, "total_res")
     avg_rating = controller.ValueBox(page, "avg_rating")
-    total_res.expect_value("3182")
-    avg_rating.expect_value("4.4")
+    total_res.expect_value("2826")
+    avg_rating.expect_value("4.5")
 
 def test_dataframe_initial(page: Page, app: ShinyAppProc) -> None:
     """
@@ -30,9 +30,9 @@ def test_dataframe_initial(page: Page, app: ShinyAppProc) -> None:
         ["Restaurant", "Stars", "# of Reviews", "city", 
          "price_range", "category_1", "category_2"]
     )
-    df.expect_nrow(3182)
-    df.expect_cell("McDonald's", row=2, col=0)
-    df.expect_cell("4.2", row=2, col=1)
+    df.expect_nrow(2826)
+    df.expect_cell("Hankki Korean Street food", row=2, col=0)
+    df.expect_cell("4.8", row=2, col=1)
 
 
 def test_basic_filters(page: Page, app: ShinyAppProc) -> None:
@@ -80,10 +80,10 @@ def test_reset_button_restores_default(page: Page, app: ShinyAppProc) -> None:
     select_city.expect_selected(["Brampton", "Edmonton"])
 
     # Check if the filter works
-    total_res.expect_value("374")
-    avg_rating.expect_value("4.3")
+    total_res.expect_value("241")
+    avg_rating.expect_value("4.4")
 
     # Check if the reset button works
     reset_button.click()
-    total_res.expect_value("3182")
-    avg_rating.expect_value("4.4")
+    total_res.expect_value("2826")
+    avg_rating.expect_value("4.5")

@@ -11,3 +11,6 @@ chatlas
 python-dotenv
 pytest
 pytest-playwright
+duckdb
+pyarrow
+ibis-framework
