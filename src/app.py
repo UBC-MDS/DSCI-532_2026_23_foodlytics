@@ -50,12 +50,14 @@ CATEGORY_2 = sorted(df["category_2"].dropna().unique().tolist())
 
 # Footer content
 REPO_URL = "https://github.com/UBC-MDS/DSCI-532_2026_23_foodlytics"
+KAGGLE_URL = "https://www.kaggle.com/datasets/satoshiss/food-delivery-in-canada-door-dash"
 APP_DESCRIPTION = (
     "Foodlytics visualizes restaurant quality and type across Canada's main cities. "
-    "For businesses and entrepreneurs planning to open a new restaurant."
+    "Intended for businesses and entrepreneurs planning to open a new restaurant."
 )
 AUTHORS = "Valeria Siciliano, Cynthia Limantono, Rabin Duran, Shanze Khemani"
-LAST_UPDATED = "Feb 2026"
+LAST_UPDATED = "March 2026"
+DATA_DESCRIPTION = "Last updated: 2022"
 
 # Overall (full-dataset) stats for value-box comparisons
 OVERALL_N = len(df)
@@ -191,6 +193,17 @@ app_ui = ui.page_navbar(
                         ui.tags.p(
                             "Authors: " + AUTHORS,
                             style="margin-bottom:0.25rem;font-size:0.9rem;",
+                        ),
+                        ui.tags.p(
+                            "Data Source: ", 
+                            ui.tags.a(
+                                "Kaggle ",
+                                href=KAGGLE_URL,
+                                target="_blank",
+                                rel="noopener",
+                                ), 
+                             " · " + DATA_DESCRIPTION + " ",
+                            style="margin-bottom:0;font-size:0.9rem;",
                         ),
                         ui.tags.p(
                             ui.tags.a(
