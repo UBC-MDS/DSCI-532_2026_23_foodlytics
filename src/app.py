@@ -279,7 +279,7 @@ app_ui = ui.page_navbar(
                     ui.card(
                         ui.card_header(ui.output_text("title")),
                         ui.output_data_frame("data_table"),
-                        ui.download_button("download_ai_data", "Download filtered data", class_="mt-2"),
+                        ui.download_button("download_ai_data", "Download filtered data", class_="btn btn-primary mt-2"),
                         height="500px",
                         fill=True,
                     ),
